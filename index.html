@@ -153,6 +153,11 @@
                     inset 0 0 0 2px rgba(0, 0, 0, 0.3);
             margin: 4px 4px -16px 4px;
 
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            image-rendering: pixelated;
+
             /* For emoji graphics */
             font-family: "Noto Emoji", serif;
             display: flex;
@@ -306,6 +311,11 @@
                     0 0 0 4px rgba(0, 0, 0, 0.3),
                     inset 0 0 0 2px rgba(0, 0, 0, 0.3);
             margin: 4px;
+
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            image-rendering: pixelated;
 
             /* For emoji graphics */
             font-family: "Noto Emoji", serif;
@@ -556,6 +566,10 @@
         #svg-combat {
             flex-grow: 1;
             touch-action: none;
+        }
+
+        #svg-combat image {
+            image-rendering: pixelated;
         }
 
         #joystick-base, #joystick-dot, #leader-flag, #svg-combat > * {
@@ -940,6 +954,12 @@
     </div>
     <svg id="svg-combat" xmlns="http://www.w3.org/2000/svg"
          viewBox="-50 -50 100 100" preserveAspectRatio="xMidYMid meet">
+        <defs>
+            <pattern id="backgroundPattern" width="32" height="32" patternUnits="userSpaceOnUse">
+                <image height="32" width="32" id="backgroundPatternRef" />
+            </pattern>
+        </defs>
+        <rect id="combat-background" fill="url(#backgroundPattern)" />
         <g id="svg-combat-loot"></g>
         <g id="svg-combat-units"></g>
         <g id="svg-combat-projectiles"></g>
@@ -1007,19 +1027,35 @@
 
     const DROP = {
         EXPERIENCE_1: {
-            symbol: '⭐',
-            radius: 1.5,
-            friction: 1,
+            image: 'loot-experience-small',
+            radius: 1,
+            friction: 4,
             onCollect: () => {
                 COMBAT.addExperience(1);
             },
         },
+        EXPERIENCE_5: {
+            image: 'loot-experience-big',
+            radius: 1.5,
+            friction: 2,
+            onCollect: () => {
+                COMBAT.addExperience(5);
+            },
+        },
         GOLD_1: {
-            symbol: '🫧',
-            radius: 2,
-            friction: 1,
+            image: 'loot-gold-small',
+            radius: 1.5,
+            friction: 4,
             onCollect: () => {
                 COMBAT.addGold(1);
+            },
+        },
+        GOLD_5: {
+            image: 'loot-gold-big',
+            radius: 2,
+            friction: 4,
+            onCollect: () => {
+                COMBAT.addGold(5);
             },
         },
     }
@@ -1044,14 +1080,14 @@
     ]
 
     const UNITS = {
-        FARMER: {
-            id: "unit-farmer",
-            name_i18n: "unit-farmer",
-            description_i18n: "unit-farmer-description",
+        CHICKEN: {
+            id: "unit-chicken",
+            name_i18n: "unit-chicken",
+            description_i18n: "unit-chicken-description",
             radius: 4,
-            portrait: "🧑‍🌾",
-            image: "🧑‍🌾",
-            projectileArt: '🔱',
+            portrait: "chicken",
+            image: "chicken",
+            projectileArt: 'projectile-sphere',
             projectileRadius: 2,
             gold: DROP.GOLD_1,
             experience: DROP.EXPERIENCE_1,
@@ -1059,7 +1095,7 @@
                 [STATS.HEALTH.id]: 3,
                 [STATS.DAMAGE.id]: 2,
                 [STATS.ATTACK_SPEED.id]: 1,
-                [STATS.RANGE.id]: 8,
+                [STATS.RANGE.id]: 12,
                 [STATS.SPEED.id]: 3,
                 [STATS.ARMOUR.id]: 1,
                 [STATS.MAGIC_RESIST.id]: 0,
@@ -1164,14 +1200,14 @@
                 magnetForce: 300,
             },
         },
-        POLICEMAN: {
-            id: "unit-policeman",
-            name_i18n: "unit-policeman",
-            description_i18n: "unit-policeman-description",
+        WOLF: {
+            id: "unit-wolf",
+            name_i18n: "unit-wolf",
+            description_i18n: "unit-wolf-description",
             radius: 4,
-            portrait: "👮",
-            image: "👮",
-            projectileArt: '💥',
+            portrait: "wolf",
+            image: "wolf",
+            projectileArt: 'projectile-bomb',
             projectileRadius: 2,
             gold: DROP.GOLD_1,
             experience: DROP.EXPERIENCE_1,
@@ -1189,7 +1225,7 @@
                 discipline: 100,
                 friction: 4,
                 perception: 50,
-                projectileSpeed: 100,
+                projectileSpeed: 40,
                 magnetDistance: 20,
                 magnetForce: 300,
             },
@@ -1261,37 +1297,22 @@
             id: "scenario-tutorial",
             name_i18n: "scenario-tutorial",
             image: "☀<br/>🧑‍🌾🌳",
+            background: "background-1",
             packs: [
                 {
                     units: [
-                        { unit: UNITS.FARMER, level: 1, count: 2, },
+                        { unit: UNITS.CHICKEN, level: 1, count: 1, },
                     ],
-                    frequency: 0.3,
-                    time: { start: 0, end: 20, }
-                },
-                {
-                    units: [
-                        { unit: UNITS.FARMER, level: 1, count: 2, },
-                        { unit: UNITS.FIREMAN, level: 1, count: 1, },
-                    ],
-                    frequency: 0.75,
-                    time: { start: 20, end: 40, }
-                },
-                {
-                    units: [
-                        { unit: UNITS.COOK, level: 1, count: 2, },
-                        { unit: UNITS.TEACHER, level: 1, count: 2, },
-                    ],
-                    frequency: 0.75,
-                    time: { start: 30, end: null, }
+                    frequency: 2.5,
+                    time: { start: 0, end: null, }
                 },
             ],
             boss: {
-                baseUnit: UNITS.FARMER,
+                baseUnit: UNITS.CHICKEN,
                 level: 5,
                 sizeModifier: 2,
                 healthModifier: 10,
-                time: 5,
+                time: 0,
             },
         },
         {
@@ -1301,14 +1322,14 @@
             packs: [
                 {
                     units: [
-                        { unit: UNITS.FARMER, level: 1, count: 2, },
+                        { unit: UNITS.CHICKEN, level: 1, count: 2, },
                     ],
                     frequency: 0.3,
                     time: { start: 0, end: 20, }
                 },
                 {
                     units: [
-                        { unit: UNITS.FARMER, level: 1, count: 2, },
+                        { unit: UNITS.CHICKEN, level: 1, count: 2, },
                         { unit: UNITS.FIREMAN, level: 1, count: 1, },
                     ],
                     frequency: 0.75,
@@ -1324,7 +1345,7 @@
                 },
             ],
             boss: {
-                baseUnit: UNITS.FARMER,
+                baseUnit: UNITS.CHICKEN,
                 level: 5,
                 sizeModifier: 2,
                 healthModifier: 10,
@@ -1335,7 +1356,7 @@
 
     const INITIAL = {
         startingUnit: {
-            unit: UNITS.POLICEMAN,
+            unit: UNITS.WOLF,
             level: 1,
         },
         gold: 0,
@@ -1364,16 +1385,16 @@
         ENGLISH: {
             "scenario-tutorial": "Tutorial",
             "scenario-training-grounds": "Training Grounds",
-            "unit-farmer": "Farmer",
-            "unit-farmer-description": "Plants potatoes, then throws them at enemies. Homegrown hostility.",
+            "unit-chicken": "Chicken",
+            "unit-chicken-description": "Plants potatoes, then throws them at enemies. Homegrown hostility.",
             "unit-student": "Student",
             "unit-student-description": "Armed with knowledge and a dangerously sharp pencil. Don’t interrupt study time.",
             "unit-artist": "Artist",
             "unit-artist-description": "Sketches beauty, splashes chaos. Paints you into a corner — literally.",
             "unit-cook": "Cook",
             "unit-cook-description": "Cooks fast, hits harder. May serve justice with a side of soup.",
-            "unit-policeman": "Policeman",
-            "unit-policeman-description": "Keeps the peace — by excessive use of force and donuts.",
+            "unit-wolf": "Wolf",
+            "unit-wolf-description": "Keeps the peace — by excessive use of force and donuts.",
             "unit-teacher": "Teacher",
             "unit-teacher-description": "Corrects grammar and combat posture. Gives pop quizzes... with explosions.",
             "unit-fireman": "Fireman",
@@ -1610,6 +1631,16 @@
             this.vy = 0;
             this.radius = radius;
             this.svg = svg;
+            document.getElementById("svg-combat").setAttribute("viewBox"
+                , `${this.x - this.radius} ${this.y - this.radius} ${2*this.radius} ${2*this.radius}`);
+
+            const elBackground = document.getElementById("combat-background");
+            elBackground.setAttribute("x", - 2 * this.radius);
+            elBackground.setAttribute("y", - 2 * this.radius);
+            elBackground.setAttribute("width", 4 * this.radius);
+            elBackground.setAttribute("height", 4 * this.radius);
+            const backgroundPattern = document.getElementById("backgroundPattern");
+            backgroundPattern.setAttribute("patternTransform", `translate(${-this.x},${-this.y})`);
         }
 
         followForce() {
@@ -1660,6 +1691,14 @@
             this.x += this.vx * dt;
             this.y += this.vy * dt;
 
+            const elBackground = document.getElementById("combat-background");
+            elBackground.setAttribute("x", - 2 * this.radius);
+            elBackground.setAttribute("y", - 2 * this.radius);
+            elBackground.setAttribute("width", 4 * this.radius);
+            elBackground.setAttribute("height", 4 * this.radius);
+            const backgroundPattern = document.getElementById("backgroundPattern");
+            backgroundPattern.setAttribute("patternTransform", `translate(${-this.x},${-this.y})`);
+
             document.getElementById("svg-combat-loot").setAttribute("transform", `translate(${-this.x},${-this.y})`);
             document.getElementById("svg-combat-projectiles").setAttribute("transform", `translate(${-this.x},${-this.y})`);
             document.getElementById("svg-combat-units").setAttribute("transform", `translate(${-this.x},${-this.y})`);
@@ -1679,11 +1718,11 @@
             this.lastAnimationTime_ms = null;
 
             this.playerPack = new Pack();
-            new Unit(ACCOUNT.startingUnit, 0, 0, this.playerPack);
+            new Unit(ACCOUNT.startingUnit, 0, 0, this.playerPack, true);
 /*
             new Unit(UNITS.FIREMAN, 0, 0, this.playerPack);
-            new Unit(UNITS.FARMER, 0, 0, this.playerPack);
-            new Unit(UNITS.POLICEMAN, 0, 0, this.playerPack);
+            new Unit(UNITS.CHICKEN, 0, 0, this.playerPack);
+            new Unit(UNITS.WOLF, 0, 0, this.playerPack);
             new Unit(UNITS.COOK, 0, 0, this.playerPack);
             new Unit(UNITS.STUDENT, 0, 0, this.playerPack);
             new Unit(UNITS.ARTIST, 0, 0, this.playerPack);
@@ -1707,6 +1746,8 @@
 
             let svgCombat = document.getElementById("svg-combat");
             this.camera = new Camera(0, 0, 50, svgCombat);
+            const backgroundPatternRef = document.getElementById("backgroundPatternRef");
+            backgroundPatternRef.setAttribute("href", "images/" + scenario.background + ".png");
         }
 
         addExperience(amount) {
@@ -1726,8 +1767,8 @@
             document.getElementById("combat-gold-amount").innerHTML = this.gold;
         }
 
-        drop(x, y, type, amount) {
-            this.loot.push(new Loot(x, y, type, amount));
+        drop(x, y, type) {
+            this.loot.push(new Loot(x, y, type));
         }
 
         act(t_ms) {
@@ -1794,7 +1835,7 @@
                 y: SPAWN_DISTANCE * Math.sin(direction),
             }
             const newPack = new Pack();
-            this.boss = new Unit(this.scenario.boss.baseUnit, spawnPoint.x, spawnPoint.y, newPack
+            this.boss = new Unit(this.scenario.boss.baseUnit, spawnPoint.x, spawnPoint.y, newPack, false
                 , this.scenario.boss.sizeModifier, this.scenario.boss.healthModifier);
             this.packs.push(newPack);
         }
@@ -1845,7 +1886,7 @@
                     new Unit(unitInfo.unit
                         , spawnPoint.x + this.camera.x
                         , spawnPoint.y + this.camera.y
-                        , newPack);
+                        , newPack, false);
                 }
             });
             this.packs.push(newPack);
@@ -1853,26 +1894,34 @@
     }
 
     class Unit {
-        constructor(unit, x, y, pack, sizeModifier = 1, healthModifier = 1) {
+        constructor(unit, x, y, pack, isAlly, sizeModifier = 1, healthModifier = 1) {
 
             this.unit = unit;
             this.attackTimer = 0;
             this.health = this.unit.stats[STATS.HEALTH.id] * healthModifier;
+            this.sizeModifier = sizeModifier;
 
             this.x = x;
             this.y = y;
             this.vx = 0;
             this.vy = 0;
 
-            this.elUnit = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            this.elUnit.innerHTML = this.unit.image;
-            this.elUnit.setAttribute("x", x);
-            this.elUnit.setAttribute("y", y);
-            this.elUnit.setAttribute("font-size", (2 * this.unit.radius * sizeModifier).toFixed(1));
+            this.elUnit = document.createElementNS("http://www.w3.org/2000/svg", "image");
+            this.elUnit.setAttribute("href", "images/" + (isAlly ? "ally-" : "foe-") + this.unit.image + ".png");
+            this.updateElPosition();
+            const radius = this.unit.radius * this.sizeModifier;
+            this.elUnit.setAttribute("width", (2 * radius).toFixed(1));
+            this.elUnit.setAttribute("height", (2 * radius).toFixed(1));
             document.getElementById("svg-combat-units").append(this.elUnit);
 
             pack.addUnit(this);
             this.pack = pack;
+        }
+
+        updateElPosition() {
+            const radius = this.unit.radius * this.sizeModifier;
+            this.elUnit.setAttribute("x", (this.x - radius).toFixed(1));
+            this.elUnit.setAttribute("y", (this.y - radius).toFixed(1));
         }
 
         attraction(attractor_x, attractor_y) {
@@ -2107,8 +2156,7 @@
             this.x += dt * this.vx;
             this.y += dt * this.vy;
 
-            this.elUnit.setAttribute("x", this.x.toFixed(1));
-            this.elUnit.setAttribute("y", this.y.toFixed(1));
+            this.updateElPosition();
         }
 
         damage(damage) {
@@ -2159,18 +2207,24 @@
 
     class Loot {
         constructor(x, y, type) {
-            this.el = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            this.el.innerHTML = type.symbol;
-            this.el.setAttribute("x", x);
-            this.el.setAttribute("y", y);
-            this.el.setAttribute("font-size", (2 * type.radius).toFixed(1));
+            this.el = document.createElementNS("http://www.w3.org/2000/svg", "image");
+            this.el.setAttribute("href", "images/" + type.image + ".png");
+            this.type = type;
+            this.el.setAttribute("width", (2 * type.radius).toFixed(1));
+            this.el.setAttribute("height", (2 * type.radius).toFixed(1));
             const lootLayer = document.getElementById("svg-combat-loot");
             lootLayer.append(this.el);
             this.x = x;
             this.y = y;
             this.vx = 0;
             this.vy = 0;
-            this.type = type;
+            this.updateElPosition();
+        }
+
+        updateElPosition() {
+            const radius = this.type.radius;
+            this.el.setAttribute("x", (this.x - radius).toFixed(1));
+            this.el.setAttribute("y", (this.y - radius).toFixed(1));
         }
 
         // TODO Double code for this and units. Extract a superclass?
@@ -2205,9 +2259,10 @@
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 return dist < unit.unit.radius;
             });
-            if (unit === undefined) return;
+            if (unit === undefined) return false;
             this.destroy();
             this.type.onCollect();
+            return true;
         }
 
         destroy() {
@@ -2247,8 +2302,7 @@
             this.x += dt * this.vx;
             this.y += dt * this.vy;
 
-            this.el.setAttribute("x", this.x.toFixed(1));
-            this.el.setAttribute("y", this.y.toFixed(1));
+            this.updateElPosition();
         }
 
         intersectionAvoidance(loot) {
@@ -2276,21 +2330,29 @@
     }
 
     class Projectile {
-        constructor(xOrigin, yOrigin, speedX, speedY, lifeTime, isPlayerSide, symbol, damage, radius) {
-            this.el = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            this.el.innerHTML = symbol;
-            this.el.setAttribute("x", xOrigin);
-            this.el.setAttribute("y", yOrigin);
-            this.el.setAttribute("font-size", (2 * radius).toFixed(1));
-            const projectileLayer = document.getElementById("svg-combat-projectiles");
-            projectileLayer.append(this.el);
+        constructor(xOrigin, yOrigin, speedX, speedY, lifeTime, isPlayerSide, image, damage, radius) {
+            this.isPlayerSide = isPlayerSide;
+            this.radius = radius;
             this.x = xOrigin;
             this.y = yOrigin;
+
+            const projectileLayer = document.getElementById("svg-combat-projectiles");
+            this.el = document.createElementNS("http://www.w3.org/2000/svg", "image");
+            this.el.setAttribute("href", "images/" + (isPlayerSide ? "ally-" : "foe-") + image + ".png");
+            this.el.setAttribute("width", (2 * radius).toFixed(1));
+            this.el.setAttribute("height", (2 * radius).toFixed(1));
+            this.updateElPosition();
+            projectileLayer.append(this.el);
+
             this.speedX = speedX;
             this.speedY = speedY;
-            this.isPlayerSide = isPlayerSide;
             this.lifeTime = lifeTime;
             this.damage = damage;
+        }
+
+        updateElPosition() {
+            this.el.setAttribute("x", (this.x - this.radius).toFixed(1));
+            this.el.setAttribute("y", (this.y - this.radius).toFixed(1));
         }
 
         act(dt) {
@@ -2301,8 +2363,7 @@
             this.x += this.speedX * dt;
             this.y += this.speedY * dt;
             this.tryHit();
-            this.el.setAttribute("x", this.x);
-            this.el.setAttribute("y", this.y);
+            this.updateElPosition();
         }
 
         destroy() {
@@ -2363,7 +2424,7 @@
 
         static updateHeader() {
             document.getElementById("gold-amount").innerHTML = ACCOUNT.gold.toString();
-            document.getElementById("avatar").innerHTML = ACCOUNT.startingUnit.portrait;
+            document.getElementById("avatar").style["background-image"] = "url('images/ally-" + ACCOUNT.startingUnit.portrait + ".png')";
         }
 
         static POPUPS = {
@@ -2403,7 +2464,7 @@
                         UI.levelUpBonuses[choiceIndex] = choice;
                         document.getElementById("choice-" + choiceIndex + "-name").innerHTML
                             = Localisation.CURRENT_LANGUAGE[choice.name_i18n];
-                        document.getElementById("choice-" + choiceIndex + "-portrait").innerHTML = choice.portrait;
+                        document.getElementById("choice-" + choiceIndex + "-portrait").style["background-image"] = "url('images/ally-" + choice.portrait + ".png')";
                         document.getElementById("choice-" + choiceIndex + "-level").innerHTML = ACCOUNT.deck[choice.id].level;
                     } while (choiceIndex < 3);
                 }
@@ -2422,7 +2483,7 @@
                 onShow: () => {
                     COMBAT.pause();
                     document.getElementById("boss-hp-progress-bar").classList.add("hidden");
-                    document.getElementById("boss-portrait").innerHTML = COMBAT.boss.unit.portrait;
+                    document.getElementById("boss-portrait").style["background-image"] = "url('images/ally-" + COMBAT.boss.unit.portrait + ".png')";
                     document.getElementById("boss-name").innerHTML = Localisation.CURRENT_LANGUAGE[COMBAT.boss.unit.name_i18n];
                 }
             },
@@ -2433,7 +2494,7 @@
                 onShow: () => {
                     console.log("Updating title screen...");
                     UI.updateHeader();
-                    document.getElementById("starting-unit-portrait-title").innerHTML = ACCOUNT.startingUnit.portrait;
+                    document.getElementById("starting-unit-portrait-title").style["background-image"] = "url('images/ally-" + ACCOUNT.startingUnit.portrait + ".png')";
                     document.getElementById("starting-unit-name-title").innerHTML = Localisation.CURRENT_LANGUAGE[ACCOUNT.startingUnit.name_i18n];
                     document.getElementById("starting-unit-level-title").innerHTML = ACCOUNT.deck[ACCOUNT.startingUnit.id].level;
                 }
@@ -2464,7 +2525,7 @@
 
                     document.getElementById("scenario-art").innerHTML = ACCOUNT.selectedScenario.image;
 
-                    document.getElementById("starting-unit-portrait-scenario").innerHTML = ACCOUNT.startingUnit.portrait;
+                    document.getElementById("starting-unit-portrait-scenario").style["background-image"] = "url('images/ally-" + ACCOUNT.startingUnit.portrait + ".png')";
                     document.getElementById("starting-unit-name-scenario").innerHTML = Localisation.CURRENT_LANGUAGE[ACCOUNT.startingUnit.name_i18n];
                     document.getElementById("starting-unit-level-scenario").innerHTML = ACCOUNT.deck[ACCOUNT.startingUnit.id].level;
                 }
@@ -2493,7 +2554,13 @@
                         const elUnitPortrait = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
                         elUnitPortrait.classList.add("portrait");
                         elUnitPortrait.classList.toggle("selected", unit === ACCOUNT.startingUnit);
-                        elUnitPortrait.innerHTML = hasUnit ? unit.portrait : Localisation.CURRENT_LANGUAGE["[question-mark]"];
+                        if (hasUnit) {
+                            elUnitPortrait.style["background-image"] = "url('images/ally-" + unit.portrait + ".png')";
+                            elUnitPortrait.innerHTML = '';
+                        } else {
+                            elUnitPortrait.style.removeProperty("background-image");
+                            elUnitPortrait.innerHTML = Localisation.CURRENT_LANGUAGE["[question-mark]"];
+                        }
                         elUnitTile.append(elUnitPortrait);
 
                         const elUnitName = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
@@ -2521,7 +2588,7 @@
                 onShow: () => {
                     console.log(`Updating unit screen for: ${UI.selectedUnit.id}`);
 
-                    document.getElementById("unit-portrait").innerHTML = UI.selectedUnit.portrait;
+                    document.getElementById("unit-portrait").style["background-image"] = "url('images/ally-" + UI.selectedUnit.portrait + ".png')";
                     document.getElementById("unit-name").innerHTML = Localisation.text(UI.selectedUnit.name_i18n);
                     document.getElementById("unit-description").innerHTML = Localisation.text(UI.selectedUnit.description_i18n);
 
@@ -2593,7 +2660,7 @@
 
         static chooseLevelUpBonus(id) {
             let centre = COMBAT.playerPack.centre();
-            new Unit(UI.levelUpBonuses[id], centre.x, centre.y, COMBAT.playerPack);
+            new Unit(UI.levelUpBonuses[id], centre.x, centre.y, COMBAT.playerPack, true);
             UI.hidePopups();
             COMBAT.resume();
         }
@@ -2629,7 +2696,7 @@
 
         static init() {
             Localisation.fillTexts();
-            this.selectedUnit = UNITS.FARMER;
+            this.selectedUnit = UNITS.CHICKEN;
             this.showScreen("screen-title", true, false);
         }
         static showScreen(screenId, showHeader, headerBackButton = true) {
