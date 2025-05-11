@@ -1,0 +1,2726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Roguero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Emoji:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Comico-Regular';
+            src: url('./fonts/Comico-Regular.woff2') format('woff2'),
+            url('./fonts/Comico-Regular.woff') format('woff'),
+            url('./fonts/Comico-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-display: swap;
+            font-style: normal;
+        }
+
+        html {
+            background-color: #0a1a2f;
+        }
+
+        body {
+            margin: 0 auto;
+            padding: 0;
+            height: 100vh; /* fallback for older browsers not supporting dvh unit */
+            height: 100dvh;
+            max-width: calc(50vh);
+            font-family: "Comico-Regular", sans-serif;
+            background-color: #334d6e;
+            color: #eeece3;
+
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .screen {
+            flex-grow: 1;
+
+            padding: 16px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Popups */
+        #popup-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 5; /* To cover the header's gold counter elements. */
+
+            background-color: rgba(0, 0, 0, 0.7);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .popup {
+
+        }
+        .popup-panel {
+            background-color: #334c6e;
+            border: 2px solid #4f6b8f;
+            border-radius: 12px;
+            max-width: 40vh;
+            margin: 12px;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+        .popup-title {
+            background-color: #4f6b8f;
+            padding: 0 12px;
+            border-radius: 10px 10px 0 0;
+        }
+        .popup-content {
+            padding: 12px;
+            box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 10px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #screen-title {
+            justify-content: center;
+            padding-bottom: 20vh;
+        }
+
+        /* Starting unit block */
+        .starting-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 32px;
+        }
+
+        .starting-unit-info {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .starting-unit-info-right {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .starting-unit-name-level {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Header bar */
+        #header, #header-combat {
+            flex-grow: 0;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #4f6b8f;
+            padding: 8px 12px;
+            gap: 12px;
+            box-shadow: 0 2px 0 2px rgba(0, 0, 0, 0.5);
+        }
+
+        #avatar {
+            width: 64px;
+            height: 64px;
+            min-height: 64px;
+            min-width: 64px;
+            background-color: #2b415d;
+            border-radius: 32px;
+            box-shadow:
+                    0 0 0 2px rgba(255, 255, 255, 0.4),
+                    0 0 0 4px rgba(0, 0, 0, 0.3),
+                    inset 0 0 0 2px rgba(0, 0, 0, 0.3);
+            margin: 4px 4px -16px 4px;
+
+            /* For emoji graphics */
+            font-family: "Noto Emoji", serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            overflow: hidden;
+        }
+
+        .resource-area {
+            flex-grow: 1;
+
+            display: flex;
+            gap: 12px;
+        }
+
+        .gold-counter, .level-counter {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .gold-counter-icon, .level-counter-icon {
+            position: relative;
+            z-index: 1;
+            font-family: "Noto Emoji", serif;
+            font-size: 2em;
+
+            height: 52px;
+            width: 52px;
+            margin-right: -16px;
+            background-color: #223b5a;
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .level-counter-icon {
+            font-size: 1em;
+            font-family: "Comico-Regular", serif;
+        }
+
+        #gold-amount, #xp-amount, #combat-gold-amount {
+            position: relative;
+            z-index: 0;
+            padding: 0 8px 0 16px;
+            height: 36px;
+            background-color: #223b5a;
+            border-radius: 8px;
+
+            display: flex;
+            align-items: center;
+        }
+
+        /* Titles and subtitles */
+        .title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f4c801;
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: #eeede7;
+        }
+
+        /* Buttons */
+        .button-block {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 0;
+            gap: 16px;
+        }
+
+        .button {
+            display: flex;
+            flex-direction: column;
+
+            background-color: #2d4d7f;
+            padding: 10px 16px;
+            margin: 2px;
+            border-radius: 8px;
+            text-align: center;
+            text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+            user-select: none;
+
+            box-shadow:
+                    inset 0 2px 0 rgba(255, 255, 255, 0.5), /* top highlight */
+                    inset 0 -2px 0 rgba(0, 0, 0, 0.5), /* bottom shadow */
+                    0 0 0 2px rgb(0, 0, 0), /* black gap around */
+                    0 4px 0 rgba(0, 0, 0, 0.5); /* outer drop shadow */
+
+        }
+
+        .button.disabled {
+            background-color: #666;
+            color: #aaa;
+            pointer-events: none;
+        }
+
+        .button:active {
+            transform: translateY(1px);
+            filter: brightness(0.9);
+            box-shadow:
+                    inset 0 2px 0 rgba(255, 255, 255, 0.5), /* top highlight */
+                    inset 0 -2px 0 rgba(0, 0, 0, 0.5), /* bottom shadow */
+                    0 -1px 0 2px rgb(0, 0, 0), /* black gap around */
+                    0 2px 0 rgba(0, 0, 0, 0.5); /* outer drop shadow */
+        }
+
+        .button.fancy {
+            background-color: #e8a901;
+            font-size: 1.5em;
+            text-shadow:
+                    0 2px 0 rgba(0, 0, 0, 0.5),
+                    0 0 2px rgba(139, 77, 0);
+        }
+
+        #header .button, #header-combat .button {
+            margin: 4px 4px -16px 4px;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            padding: 0;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 0;
+            flex-shrink: 0;
+        }
+
+        .header-button-icon {
+            font-family: "Noto Emoji", serif;
+            font-size: 2.5em;
+            line-height: 1;
+        }
+
+        /* Portrait and unit tiles */
+        .portrait {
+            width: 64px;
+            height: 64px;
+            min-height: 64px;
+            min-width: 64px;
+            background-color: #2b415d;
+            border-radius: 8px;
+            box-shadow:
+                    0 0 0 2px rgba(255, 255, 255, 0.4),
+                    0 0 0 4px rgba(0, 0, 0, 0.3),
+                    inset 0 0 0 2px rgba(0, 0, 0, 0.3);
+            margin: 4px;
+
+            /* For emoji graphics */
+            font-family: "Noto Emoji", serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            overflow: hidden;
+        }
+
+        .portrait.selected {
+            box-shadow:
+                    0 0 0 2px #f2c602,
+                    0 0 0 4px rgba(0, 0, 0, 0.3),
+                    inset 0 0 0 2px rgba(0, 0, 0, 0.3);
+        }
+
+        #scenario-art {
+            width: 256px;
+            height: 158px;
+            min-height: 64px;
+            min-width: 64px;
+            background-color: #2b415d;
+            border-radius: 8px;
+            box-shadow: 0 0 0 4px rgb(0, 0, 0);
+            margin: 4px;
+
+            /* For emoji graphics */
+            font-family: "Noto Emoji", serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* Container rows */
+        .container-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .scenario-art-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+            z-index: 0;
+        }
+
+        #scenario-button-left {
+            margin-right: -16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        #scenario-button-right {
+            margin-left: -16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        #screen-scenario .button.fancy {
+            margin-top: -24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .paginator-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Key-value pairs */
+        .key-value {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Inset block with separator */
+        .inset-block {
+            background-color: #243b5e;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+
+        .inset-block-separator {
+            height: 1px;
+            background-color: #55719c;
+            margin: 6px 0;
+        }
+
+        /* Checkboxes */
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #fff;
+            border-radius: 6px;
+            background-color: #223b5a;
+        }
+
+        .checkbox.on::after {
+            content: '✓';
+            color: #ffcc33;
+            display: block;
+            text-align: center;
+            line-height: 22px;
+        }
+
+        /* Stat screen */
+        .stat-level-up-bonus {
+            color: #64c362;
+        }
+
+        .stat-icon, .cost-icon, .icon {
+            font-family: "Noto Emoji", serif;
+        }
+
+        .unit-screen-bottom-label {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shrink-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto auto 1fr auto auto;
+            align-items: baseline;
+        }
+        .stat-grid > :nth-child(8n + 3), .stat-grid > :nth-child(8n + 7) {
+            margin-left: 4px;
+            text-align: right;
+        }
+        .stat-grid > :nth-child(8n + 1), .stat-grid > :nth-child(8n + 5) {
+            margin-right: 4px;
+        }
+        .stat-grid > :nth-child(8n + 3) {
+            margin-left: 4px;
+        }
+        .columns-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 12px;
+        }
+
+        /* Encyclopedia screen */
+
+        #screen-encyclopedia {
+            overflow: hidden;
+        }
+
+        #deck-no-overflow {
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 2px rgb(255 255 255 / 10%);
+        }
+
+        #deck-scroll {
+            height: 100%;
+            overflow-y: auto;
+            background-color: #2b415d;
+            box-shadow:
+                    inset 0 16px 16px -16px rgba(0, 0, 0, 0.4), /* top fade */
+                    inset 0 -16px 16px -16px rgba(0, 0, 0, 0.4); /* bottom fade */
+        }
+
+        /* Chrome, Safari and Edge */
+        #deck-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #deck-scroll::-webkit-scrollbar-track {
+            background: #223b5a;                /* track color */
+            box-shadow: -2px 0 0 2px #334c6e;
+        }
+
+        #deck-scroll::-webkit-scrollbar-thumb {
+            background-color: #888;             /* thumb color */
+            border-radius: 4px;
+            border: 2px solid #223b5a;          /* creates padding around thumb */
+        }
+
+        #deck-scroll::-webkit-scrollbar-thumb:hover {
+            background-color: #aaa;
+        }
+
+        .columns-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            column-gap: 12px;
+        }
+
+        #deck-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            overflow: auto;
+            margin: 12px;
+        }
+
+        .encyclopedia-unit-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .encyclopedia-unit-tile.locked {
+            color: #64768d;
+        }
+
+        /* Gold and XP in combat */
+
+        #exp-progress-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #223b5a;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+
+        #screen-combat {
+            padding: 0;
+            align-items: stretch;
+            gap: 0;
+        }
+
+        #svg-combat {
+            flex-grow: 1;
+            touch-action: none;
+        }
+
+        #joystick-base, #joystick-dot, #leader-flag, #svg-combat > * {
+            touch-action: none; /* Disables pinch-zoom, pan, etc. */
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none; /* Prevents long-press and other gestures */
+            -webkit-tap-highlight-color: transparent; /* No highlighting on tap */
+        }
+
+        #leader-flag {
+            font-family: "Noto Emoji", serif;
+            font-size: 8px;
+        }
+
+        text {
+            font-family: "Noto Emoji", serif;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        #boss-hp-progress-bar-container {
+            position: fixed;
+            bottom: 16px;
+            right: 0;
+            left: 0;
+            height: 24px;
+        }
+
+        #boss-hp-progress-bar {
+            margin: 0 auto;
+            width: 40vh;
+            height: 24px;
+            background-color: #223b5a;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, .3);
+        }
+
+    </style>
+</head>
+<body>
+<div id="header">
+    <div id="avatar" onclick="UI.selectedUnit = ACCOUNT.startingUnit; UI.showScreen('screen-unit', true);"></div>
+    <div class="resource-area">
+        <div class="gold-counter">
+            <div class="gold-counter-icon" data-i18n="[coin]"></div>
+            <div id="gold-amount">[amount]</div>
+        </div>
+    </div>
+    <div class="button" id="header-button-back" onclick="UI.showScreen('screen-title', true, false);">
+        <div class="header-button-icon" data-i18n="[back]"></div>
+    </div>
+    <div class="button" id="header-button-settings" onclick="UI.showPopup('popup-settings');">
+        <div class="header-button-icon" data-i18n="[gear]"></div>
+    </div>
+</div>
+<div id="popup-container" class="hidden">
+    <div class="popup hidden" id="popup-boss-defeated">
+        <div class="popup-panel">
+            <div class="title popup-title" data-i18n="boss-defeated" data-i18n-uppercase></div>
+            <div class="popup-content">
+                <div data-i18n="new-unit-unlocked"></div>
+                <div class="portrait" id="boss-portrait"></div>
+                <div id="boss-name">[boss name]</div>
+                <div class="button" data-i18n="great" data-i18n-uppercase onclick="UI.hidePopups(); COMBAT.resume();"></div>
+            </div>
+        </div>
+    </div>
+    <div class="popup hidden" id="popup-level-up">
+        <div class="popup-panel">
+            <div class="title popup-title" data-i18n="level-up" data-i18n-uppercase></div>
+            <div class="popup-content">
+                <div class="container-row">
+                    <div class="encyclopedia-unit-tile" onclick="UI.chooseLevelUpBonus(1);">
+                        <div id="choice-1-portrait" class="portrait"></div>
+                        <div id="choice-1-name">[unit name]</div>
+                        <div>
+                            <span data-i18n="lv"></span>&nbsp;<span id="choice-1-level">[X]</span>
+                        </div>
+                    </div>
+                    <div class="encyclopedia-unit-tile" onclick="UI.chooseLevelUpBonus(2);">
+                        <div id="choice-2-portrait" class="portrait"></div>
+                        <div id="choice-2-name">[unit name]</div>
+                        <div>
+                            <span data-i18n="lv"></span>&nbsp;<span id="choice-2-level">[X]</span>
+                        </div>
+                    </div>
+                    <div class="encyclopedia-unit-tile" onclick="UI.chooseLevelUpBonus(3);">
+                        <div id="choice-3-portrait" class="portrait"></div>
+                        <div id="choice-3-name">[unit name]</div>
+                        <div>
+                            <span data-i18n="lv"></span>&nbsp;<span id="choice-3-level">[X]</span>
+                        </div>
+                    </div>
+                </div>
+                <div data-i18n="choose-a-unit-to-join-your-team"></div>
+            </div>
+        </div>
+        <div id="not-much-choice" data-i18n="not-much-of-a-choice-eh-defeat-bosses-to-unlock-more-units"></div>
+    </div>
+    <div class="popup hidden" id="popup-defeat">
+        <div class="popup-panel">
+            <div class="title popup-title" data-i18n="defeat" data-i18n-uppercase></div>
+            <div class="popup-content">
+                <div class="subtitle" data-i18n="score" data-i18n-uppercase></div>
+                <div class="inset-block">
+                    <div class="key-value">
+                        <div data-i18n="time-survived"></div>
+                        <div id="time-survived">[MM:SS]</div>
+                    </div>
+                    <div class="inset-block-separator"></div>
+                    <div class="key-value">
+                        <div data-i18n="coins-collected"></div>
+                        <div id="coins-collected">[X]</div>
+                    </div>
+                    <div class="inset-block-separator"></div>
+                    <div class="key-value">
+                        <div data-i18n="max-level"></div>
+                        <div id="max-level">[X]</div>
+                    </div>
+                </div>
+                <div class="columns-2">
+                    <div class="button" id="button-restart" data-i18n="restart-level" data-i18n-uppercase onclick="UI.restartCombat();"></div>
+                    <div class="button" id="button-upgrades" data-i18n="go-to-upgrades" data-i18n-uppercase onclick="UI.selectedUnit = ACCOUNT.startingUnit; UI.showScreen('screen-unit', true);"></div>
+                </div>
+                <div class="button" id="button-return" data-i18n="return-to-title-screen" data-i18n-uppercase onclick="UI.showScreen('screen-title', true, false);"></div>
+            </div>
+        </div>
+    </div>
+    <div class="popup hidden" id="popup-settings">
+        <div class="popup-panel">
+            <div class="title popup-title" data-i18n="settings" data-i18n-uppercase></div>
+            <div class="popup-content">
+                <div class="key-value">
+                    <div data-i18n="music" data-i18n-uppercase></div>
+                    <div class="checkbox on"></div>
+                </div>
+                <div class="key-value">
+                    <div data-i18n="sound-effects" data-i18n-uppercase></div>
+                    <div class="checkbox on"></div>
+                </div>
+                <div class="button" id="button-settings-close" data-i18n="close" data-i18n-uppercase onclick="UI.showScreen('screen-title', true, false);"></div>
+            </div>
+        </div>
+    </div>
+    <div class="popup hidden" id="popup-not-enough-gold">
+        <div class="popup-panel">
+            <div class="title popup-title" data-i18n="whoops" data-i18n-uppercase></div>
+            <div class="popup-content">
+                <div data-i18n="not-enough-gold"></div>
+                <div class="button" data-i18n="close" data-i18n-uppercase onclick="UI.hidePopups();"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="screen hidden" id="screen-title">
+    <div class="button-block">
+        <div class="button fancy" id="button-play" data-i18n="play" data-i18n-uppercase onclick="UI.showScreen('screen-scenario', true);"></div>
+        <div class="button" id="button-encyclopedia" data-i18n="units-and-upgrades" data-i18n-uppercase onclick="UI.showScreen('screen-encyclopedia', true);"></div>
+    </div>
+    <div class="starting-unit">
+        <div data-i18n="starting-unit" data-i18n-uppercase></div>
+        <div class="starting-unit-info">
+            <div class="portrait" id="starting-unit-portrait-title"></div>
+            <div class="starting-unit-info-right">
+                <div class="starting-unit-name-level">
+                    <div class="subtitle" id="starting-unit-name-title">[unit name]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="starting-unit-level-title">[X]</span>
+                    </div>
+                </div>
+                <div class="button" id="button-change-unit-title" data-i18n="change" data-i18n-uppercase onclick="UI.showScreen('screen-encyclopedia', true);"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="screen hidden" id="screen-encyclopedia">
+    <div class="title" data-i18n="units-and-upgrades" data-i18n-uppercase></div>
+    <div data-i18n="choose-a-unit-to-view-upgrade-or-select"></div>
+    <div id="deck-no-overflow">
+        <div id="deck-scroll">
+            <div id="deck-grid">
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait selected"></div>
+                    <div id="encyclopedia-unit-1-name">[unit name]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="encyclopedia-unit-1-level-title">[X]</span>
+                    </div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-2-name">[unit name]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="encyclopedia-unit-2-level-title">[X]</span>
+                    </div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-3-name">[name]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="encyclopedia-unit-3-level-title">[X]</span>
+                    </div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-4-name">[unit]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="encyclopedia-unit-4-level-title">[X]</span>
+                    </div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-5-name">[unit name]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="encyclopedia-unit-5-level-title">[X]</span>
+                    </div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-6-name">[unit name]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="encyclopedia-unit-6-level-title">[X]</span>
+                    </div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-7-name">[name]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="encyclopedia-unit-7-level-title">[X]</span>
+                    </div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-8-name">???</div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-9-name">???</div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-10-name">???</div>
+                </div>
+                <div class="encyclopedia-unit-tile" onclick="UI.showScreen('screen-unit', true);">
+                    <div class="portrait"></div>
+                    <div id="encyclopedia-unit-11-name">???</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="paginator-container">
+        <div class="button" id="paginator-button-left disabled" data-i18n="[left]"></div>
+        <div id="paginator-middle">[X-Y/Z]</div>
+        <div class="button" id="paginator-button-right disabled" data-i18n="[right]"></div>
+    </div>
+</div>
+<div class="screen hidden" id="screen-scenario">
+    <div class="title" data-i18n="scenario-selection" data-i18n-uppercase></div>
+    <div class="subtitle" id="scenario-name">[scenario title]</div>
+    <div class="scenario-art-container" id="scenario-art-container">
+        <div class="button disabled" id="scenario-button-left" data-i18n="[left]" onclick="UI.scrollScenario(-1);"></div>
+        <div class="scenario-art" id="scenario-art"></div>
+        <div class="button disabled" id="scenario-button-right" data-i18n="[right]" onclick="UI.scrollScenario(+1);"></div>
+    </div>
+    <div class="button fancy" id="button-start" data-i18n="play" data-i18n-uppercase onclick="UI.showScreen('screen-combat', false);"></div>
+    <div class="container-row">
+        <div data-i18n="best-time"></div>
+        <div id="best-time">[time]</div>
+    </div>
+    <div id="boss-not-defeated" data-i18n="defeat-the-boss-to-unlock-next-level"></div>
+    <div id="boss-defeated">
+        <span data-i18n="[tick]"></span>
+        <span data-i18n="boss-defeated"></span>
+    </div>
+    <div class="starting-unit">
+        <div data-i18n="starting-unit" data-i18n-uppercase></div>
+        <div class="starting-unit-info">
+            <div class="portrait" id="starting-unit-portrait-scenario"></div>
+            <div class="starting-unit-info-right">
+                <div class="starting-unit-name-level">
+                    <div class="subtitle" id="starting-unit-name-scenario">[unit name]</div>
+                    <div>
+                        <span data-i18n="lv"></span>&nbsp;<span id="starting-unit-level-scenario">[X]</span>
+                    </div>
+                </div>
+                <div class="button" id="button-change-unit-scenario" data-i18n="change" data-i18n-uppercase onclick="UI.showScreen('screen-encyclopedia', true);"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="screen hidden" id="screen-unit">
+    <div class="container-row">
+        <div class="portrait" id="unit-portrait"></div>
+        <div>
+            <div class="container-row">
+                <div class="title" id="unit-name">[UNIT NAME]</div>
+                <div>
+                    <span data-i18n="lv"></span>&nbsp;<span id="unit-level">[X]</span>
+                </div>
+            </div>
+            <div id="unit-description">[Possibly very long unit description, mentioning its strengths and weaknesses.]</div>
+        </div>
+    </div>
+    <div class="subtitle" data-i18n="stats" data-i18n-uppercase></div>
+    <div class="stat-grid">
+
+        <div class="stat-icon" data-i18n="stat-health-icon"></div>
+        <div class="stat-name" data-i18n="stat-health"></div>
+        <span id="stat-health-value">[X]</span>
+        <span class="stat-level-up-bonus" id="stat-health-level-up-bonus">(+X)</span>
+
+        <div class="stat-icon" data-i18n="stat-speed-icon"></div>
+        <div class="stat-name" data-i18n="stat-speed"></div>
+        <span id="stat-speed-value">[X]</span>
+        <span class="stat-level-up-bonus" id="stat-speed-level-up-bonus">(+X)</span>
+
+        <div class="stat-icon" data-i18n="stat-damage-icon"></div>
+        <div class="stat-name" data-i18n="stat-damage"></div>
+        <span id="stat-damage-value">[X]</span>
+        <span class="stat-level-up-bonus" id="stat-damage-level-up-bonus">(+X)</span>
+
+        <div class="stat-icon" data-i18n="stat-armour-icon"></div>
+        <div class="stat-name" data-i18n="stat-armour"></div>
+        <span id="stat-armour-value">[X]</span>
+        <span class="stat-level-up-bonus" id="stat-armour-level-up-bonus">(+X)</span>
+
+        <div class="stat-icon" data-i18n="stat-speed-icon"></div>
+        <div class="stat-name" data-i18n="stat-attack-speed" style="flex-shrink: 1"></div>
+        <span id="stat-attack-speed-value">[X]</span>
+        <span class="stat-level-up-bonus" id="stat-attack-speed-level-up-bonus">(+X)</span>
+
+        <div class="stat-icon" data-i18n="stat-magic-resist-icon"></div>
+        <div class="stat-name" data-i18n="stat-magic-resist"></div>
+        <span id="stat-magic-resist-value">[X]</span>
+        <span class="stat-level-up-bonus" id="stat-magic-resist-level-up-bonus">(+X)</span>
+
+        <div class="stat-icon" data-i18n="stat-range-icon"></div>
+        <div class="stat-name" data-i18n="stat-range"></div>
+        <span id="stat-range-value">[X]</span>
+        <span class="stat-level-up-bonus" id="stat-range-level-up-bonus">(+X)</span>
+
+        <div class="stat-icon" data-i18n="stat-crit-chance-icon"></div>
+        <div class="stat-name" data-i18n="stat-crit-chance"></div>
+        <span id="stat-crit-chance-value">[X]</span>
+        <span class="stat-level-up-bonus" id="stat-crit-chance-level-up-bonus">(+X)</span>
+    </div>
+    <div class="columns-2">
+        <div id="upgrade-button" class="button" onclick="UI.upgradeCurrentUnit();">
+            <div data-i18n="upgrade" data-i18n-uppercase></div>
+            <div class="shrink-row">
+                <div data-i18n="[coin]" class="cost-icon"></div>
+                <div id="upgrade-cost">[cost]</div>
+            </div>
+        </div>
+        <div id="max-level-label" class="unit-screen-bottom-label">
+            <div data-i18n="[tick]" class="icon"></div>
+            <div data-i18n="maximum-level" data-i18n-uppercase></div>
+        </div>
+        <div id="is-current-unit-label" class="unit-screen-bottom-label">
+            <div data-i18n="[tick]" class="icon"></div>
+            <div data-i18n="is-set-as-the-starting-unit" data-i18n-uppercase></div>
+        </div>
+        <div id="set-current-unit-button" class="button hidden" onclick="UI.makeCurrentUnitStarting();">
+            <div data-i18n="set-as-starting-unit" data-i18n-uppercase></div>
+        </div>
+    </div>
+</div>
+<div class="screen hidden" id="screen-combat">
+    <div id="header-combat">
+        <div class="resource-area">
+            <div class="gold-counter">
+                <div class="gold-counter-icon" data-i18n="[coin]"></div>
+                <div id="combat-gold-amount">[amount]</div>
+            </div>
+            <div class="level-counter">
+                <div class="level-counter-icon"><span data-i18n="lv"></span><span id="combat-level">[X]</span></div>
+                <div id="xp-amount">[amount]</div>
+            </div>
+        </div>
+        <div class="button" id="header-button-pause" onclick="UI.showPopup('popup-pause');">
+            <div class="header-button-icon" data-i18n="[gear]"></div>
+        </div>
+    </div>
+    <svg id="svg-combat" xmlns="http://www.w3.org/2000/svg"
+         viewBox="-50 -50 100 100" preserveAspectRatio="xMidYMid meet">
+        <g id="svg-combat-loot"></g>
+        <g id="svg-combat-units"></g>
+        <g id="svg-combat-projectiles"></g>
+        <text id="leader-flag" opacity="0.4" visibility="hidden">🚩</text>
+        <circle id="joystick-base" r="10" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="2" visibility="hidden"/>
+        <circle id="joystick-dot" r="3" fill="white" visibility="hidden"/>
+    </svg>
+    <div id="boss-hp-progress-bar-container">
+        <div id="boss-hp-progress-bar" class="hidden"></div>
+    </div>
+</div>
+<script>
+    const STATS = {
+        HEALTH: {
+            id: "health",
+            valueAtLevel: (startValue, level) => {
+                return Math.round(startValue * Math.pow(1.2, level - 1));
+            },
+        },
+        DAMAGE: {
+            id: "damage",
+            valueAtLevel: (startValue, level) => {
+                return Math.round(startValue * Math.pow(1.2, level - 1));
+            },
+        },
+        ATTACK_SPEED: {
+            id: "attack-speed",
+            valueAtLevel: (startValue, level) => {
+                return (startValue / Math.pow(1.1, level - 1)).toFixed(1);
+            },
+        },
+        RANGE: {
+            id: "range",
+            valueAtLevel: (startValue, level) => {
+                return (startValue * Math.pow(1.2, level - 1)).toFixed(1);
+            },
+        },
+        SPEED: {
+            id: "speed",
+            valueAtLevel: (startValue, level) => {
+                return startValue;
+            },
+        },
+        ARMOUR: {
+            id: "armour",
+            valueAtLevel: (startValue, level) => {
+                return Math.round(startValue * Math.pow(1.2, level - 1));
+            },
+        },
+        MAGIC_RESIST: {
+            id: "magic-resist",
+            valueAtLevel: (startValue, level) => {
+                return Math.round(startValue * Math.pow(1.2, level - 1));
+            },
+        },
+        CRIT_CHANCE: {
+            id: "crit-chance",
+            valueAtLevel: (startValue, level) => {
+                return startValue;
+                // Not just hard to choose a good progression formula, but also breaks the UI
+                // return (1 - (1 - startValue) / Math.pow(1.05, level - 1)).toFixed(2);
+            },
+        },
+    }
+
+    const DROP = {
+        EXPERIENCE_1: {
+            symbol: '⭐',
+            radius: 1.5,
+            friction: 1,
+            onCollect: () => {
+                COMBAT.addExperience(1);
+            },
+        },
+        GOLD_1: {
+            symbol: '🫧',
+            radius: 2,
+            friction: 1,
+            onCollect: () => {
+                COMBAT.addGold(1);
+            },
+        },
+    }
+
+    const UPGRADES = [
+        { cost: 5 },
+        { cost: 10 },
+        { cost: 15 },
+        { cost: 20 },
+        { cost: 25 },
+    ]
+
+    const COMBAT_LEVELS = [
+        3,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500
+    ]
+
+    const UNITS = {
+        FARMER: {
+            id: "unit-farmer",
+            name_i18n: "unit-farmer",
+            description_i18n: "unit-farmer-description",
+            radius: 4,
+            portrait: "🧑‍🌾",
+            image: "🧑‍🌾",
+            projectileArt: '🔱',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 3,
+                [STATS.DAMAGE.id]: 2,
+                [STATS.ATTACK_SPEED.id]: 1,
+                [STATS.RANGE.id]: 8,
+                [STATS.SPEED.id]: 3,
+                [STATS.ARMOUR.id]: 1,
+                [STATS.MAGIC_RESIST.id]: 0,
+                [STATS.CRIT_CHANCE.id]: 0.1,
+            },
+            AI: {
+                discipline: 100,
+                friction: 3,
+                perception: 50,
+                projectileSpeed: 30,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        STUDENT: {
+            id: "unit-student",
+            name_i18n: "unit-student",
+            description_i18n: "unit-student-description",
+            radius: 4,
+            portrait: "🧑‍🎓",
+            image: "🧑‍🎓",
+            projectileArt: '📕',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 8,
+                [STATS.DAMAGE.id]: 3,
+                [STATS.ATTACK_SPEED.id]: 0.4,
+                [STATS.RANGE.id]: 2,
+                [STATS.SPEED.id]: 3,
+                [STATS.ARMOUR.id]: 0,
+                [STATS.MAGIC_RESIST.id]: 0,
+                [STATS.CRIT_CHANCE.id]: 0.2,
+            },
+            AI: {
+                discipline: 100,
+                friction: 4,
+                perception: 50,
+                projectileSpeed: 100,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        ARTIST: {
+            id: "unit-artist",
+            name_i18n: "unit-artist",
+            description_i18n: "unit-artist-description",
+            radius: 4,
+            portrait: "🧑‍🎨",
+            image: "🧑‍🎨",
+            projectileArt: '✏',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 5,
+                [STATS.DAMAGE.id]: 1,
+                [STATS.ATTACK_SPEED.id]: 0.3,
+                [STATS.RANGE.id]: 4,
+                [STATS.SPEED.id]: 4,
+                [STATS.ARMOUR.id]: 0,
+                [STATS.MAGIC_RESIST.id]: 8,
+                [STATS.CRIT_CHANCE.id]: 0.05,
+            },
+            AI: {
+                discipline: 100,
+                friction: 4,
+                perception: 50,
+                projectileSpeed: 100,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        COOK: {
+            id: "unit-cook",
+            name_i18n: "unit-cook",
+            description_i18n: "unit-cook-description",
+            radius: 4,
+            portrait: "🧑‍🍳",
+            image: "🧑‍🍳",
+            projectileArt: '🍳',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 8,
+                [STATS.DAMAGE.id]: 4,
+                [STATS.ATTACK_SPEED.id]: 1.0,
+                [STATS.RANGE.id]: 4,
+                [STATS.SPEED.id]: 3,
+                [STATS.ARMOUR.id]: 4,
+                [STATS.MAGIC_RESIST.id]: 1,
+                [STATS.CRIT_CHANCE.id]: 0.15,
+            },
+            AI: {
+                discipline: 80,
+                friction: 2,
+                perception: 50,
+                projectileSpeed: 100,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        POLICEMAN: {
+            id: "unit-policeman",
+            name_i18n: "unit-policeman",
+            description_i18n: "unit-policeman-description",
+            radius: 4,
+            portrait: "👮",
+            image: "👮",
+            projectileArt: '💥',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 14,
+                [STATS.DAMAGE.id]: 4,
+                [STATS.ATTACK_SPEED.id]: 0.7,
+                [STATS.RANGE.id]: 40,
+                [STATS.SPEED.id]: 7,
+                [STATS.ARMOUR.id]: 5,
+                [STATS.MAGIC_RESIST.id]: 2,
+                [STATS.CRIT_CHANCE.id]: 0.04,
+            },
+            AI: {
+                discipline: 100,
+                friction: 4,
+                perception: 50,
+                projectileSpeed: 100,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        TEACHER: {
+            id: "unit-teacher",
+            name_i18n: "unit-teacher",
+            description_i18n: "unit-teacher-description",
+            radius: 4,
+            portrait: "🧑‍🏫",
+            image: "🧑‍🏫",
+            projectileArt: '📕',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 7,
+                [STATS.DAMAGE.id]: 1,
+                [STATS.ATTACK_SPEED.id]: 0.5,
+                [STATS.RANGE.id]: 10,
+                [STATS.SPEED.id]: 1,
+                [STATS.ARMOUR.id]: 0,
+                [STATS.MAGIC_RESIST.id]: 3,
+                [STATS.CRIT_CHANCE.id]: 0.0,
+            },
+            AI: {
+                discipline: 100,
+                friction: 2,
+                perception: 50,
+                projectileSpeed: 100,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        FIREMAN: {
+            id: "unit-fireman",
+            name_i18n: "unit-fireman",
+            description_i18n: "unit-fireman-description",
+            radius: 4,
+            portrait: "🧑‍🚒",
+            image: "🧑‍🚒",
+            projectileArt: '🔥',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 12,
+                [STATS.DAMAGE.id]: 4,
+                [STATS.ATTACK_SPEED.id]: 0.5,
+                [STATS.RANGE.id]: 30,
+                [STATS.SPEED.id]: 5,
+                [STATS.ARMOUR.id]: 2,
+                [STATS.MAGIC_RESIST.id]: 1,
+                [STATS.CRIT_CHANCE.id]: 0.05,
+            },
+            AI: {
+                discipline: 100,
+                friction: 4,
+                perception: 50,
+                projectileSpeed: 100,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+    }
+
+    const SCENARIOS = [
+        {
+            id: "scenario-tutorial",
+            name_i18n: "scenario-tutorial",
+            image: "☀<br/>🧑‍🌾🌳",
+            packs: [
+                {
+                    units: [
+                        { unit: UNITS.FARMER, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 0, end: 20, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.FARMER, level: 1, count: 2, },
+                        { unit: UNITS.FIREMAN, level: 1, count: 1, },
+                    ],
+                    frequency: 0.75,
+                    time: { start: 20, end: 40, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.COOK, level: 1, count: 2, },
+                        { unit: UNITS.TEACHER, level: 1, count: 2, },
+                    ],
+                    frequency: 0.75,
+                    time: { start: 30, end: null, }
+                },
+            ],
+            boss: {
+                baseUnit: UNITS.FARMER,
+                level: 5,
+                sizeModifier: 2,
+                healthModifier: 10,
+                time: 5,
+            },
+        },
+        {
+            id: "scenario-training-grounds",
+            name_i18n: "scenario-training-grounds",
+            image: "🌙<br/>🚴🏔",
+            packs: [
+                {
+                    units: [
+                        { unit: UNITS.FARMER, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 0, end: 20, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.FARMER, level: 1, count: 2, },
+                        { unit: UNITS.FIREMAN, level: 1, count: 1, },
+                    ],
+                    frequency: 0.75,
+                    time: { start: 20, end: 40, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.COOK, level: 1, count: 2, },
+                        { unit: UNITS.TEACHER, level: 1, count: 2, },
+                    ],
+                    frequency: 0.75,
+                    time: { start: 30, end: null, }
+                },
+            ],
+            boss: {
+                baseUnit: UNITS.FARMER,
+                level: 5,
+                sizeModifier: 2,
+                healthModifier: 10,
+                time: 5,
+            },
+        }
+    ]
+
+    const INITIAL = {
+        startingUnit: {
+            unit: UNITS.POLICEMAN,
+            level: 1,
+        },
+        gold: 0,
+    }
+
+    const ACCOUNT = {
+        deck: {
+            [INITIAL.startingUnit.unit.id]: {
+                level: INITIAL.startingUnit.level,
+            },
+        },
+        gold: INITIAL.gold,
+        startingUnit: INITIAL.startingUnit.unit,
+        progress: {
+            [SCENARIOS[0].id]: {
+                time: null,
+                bossKilled: false,
+            }
+        },
+        selectedScenario: SCENARIOS[0],
+    }
+
+    let COMBAT = null;
+
+    const LOCALES = {
+        ENGLISH: {
+            "scenario-tutorial": "Tutorial",
+            "scenario-training-grounds": "Training Grounds",
+            "unit-farmer": "Farmer",
+            "unit-farmer-description": "Plants potatoes, then throws them at enemies. Homegrown hostility.",
+            "unit-student": "Student",
+            "unit-student-description": "Armed with knowledge and a dangerously sharp pencil. Don’t interrupt study time.",
+            "unit-artist": "Artist",
+            "unit-artist-description": "Sketches beauty, splashes chaos. Paints you into a corner — literally.",
+            "unit-cook": "Cook",
+            "unit-cook-description": "Cooks fast, hits harder. May serve justice with a side of soup.",
+            "unit-policeman": "Policeman",
+            "unit-policeman-description": "Keeps the peace — by excessive use of force and donuts.",
+            "unit-teacher": "Teacher",
+            "unit-teacher-description": "Corrects grammar and combat posture. Gives pop quizzes... with explosions.",
+            "unit-fireman": "Fireman",
+            "unit-fireman-description": "Puts out fires. Starts them too, if he's feeling spicy.",            "level-up": "Level Up",
+            "choose-a-unit-to-join-your-team": "choose a unit to join your team",
+            "defeat": "Defeat",
+            "score": "score",
+            "time-survived": "Time Survived",
+            "coins-collected": "Coins Collected",
+            "maximum-level": "Maximum Level",
+            "restart-level": "Restart level",
+            "return-to-title-screen": "Return to title screen",
+            "go-to-upgrades": "Go to upgrades",
+            "settings": "settings",
+            "music": "Music",
+            "sound-effects": "Sound Effects",
+            "close": "close",
+            "play": "play",
+            "change": "change",
+            "units-and-upgrades": "units & upgrades",
+            "starting-unit": "Starting Unit",
+            "choose-a-unit-to-view-upgrade-or-select": "Choose a unit to view, upgrade, or select.",
+            "[back]": "❮", /* TODO Ideally should be an image like 🔙 */
+            "back": "back",
+            "[gear]": "⚙",
+            "[left]": "◀",
+            "[right]": "▶",
+            "[coin]": "💰",
+            "[question-mark]": "❓",
+            "scenario-selection": "Scenario selection",
+            "best-time": "Best Time:",
+            "defeat-the-boss-to-unlock-next-level": "Defeat the boss to unlock next level!",
+            "[tick]": "✔",
+            "level": "Level",
+            "lv": "Lv.",
+            "stats": "Stats",
+            "stat-health-icon": "❤",
+            "stat-health": "Health",
+            "stat-damage-icon": "⚔",
+            "stat-damage": "Damage",
+            "stat-attack-speed-icon": "🌀",
+            "stat-attack-speed": "Attack Speed",
+            "stat-range-icon": "🏹",
+            "stat-range": "Range",
+            "stat-speed-icon": "🥾",
+            "stat-speed": "Speed",
+            "stat-armour-icon": "🛡",
+            "stat-armour": "Armour",
+            "stat-magic-resist-icon": "✨",
+            "stat-magic-resist": "Magic Resist",
+            "stat-crit-chance-icon": "🎲",
+            "stat-crit-chance": "Crit Chance",
+            "upgrade": "upgrade",
+            "max-level": "Maximum level",
+            "set-as-starting-unit": "Set as<br/>starting unit",
+            "is-set-as-the-starting-unit": "Is set as the<br/>starting unit",
+            "boss-defeated": "Boss defeated!",
+            "new-unit-unlocked": "New unit unlocked",
+            "great": "Great!",
+            "unit-not-unlocked-abbreviation": "???",
+            "whoops": "Whoops!",
+            "not-enough-gold": "Not enough gold",
+            "not-much-of-a-choice-eh-defeat-bosses-to-unlock-more-units": "Not much of a choice, eh?<br/>Defeat bosses to unlock new units!"
+        }
+    }
+    class Localisation {
+        static CURRENT_LANGUAGE = LOCALES.ENGLISH;
+        static text(key) {
+            return Localisation.CURRENT_LANGUAGE[key] || key;
+        }
+        static fillTexts() {
+            document.querySelectorAll("[data-i18n]").forEach(el => {
+                let text = Localisation.text(el.dataset.i18n);
+                if (el.hasAttribute("data-i18n-uppercase")) {
+                    text = text.toUpperCase();
+                }
+                el.innerHTML = text;
+            });
+        }
+    }
+
+    class Joystick {
+        constructor(svgElement) {
+            this.svg = svgElement;
+            this.active = false;
+            this.origin = { x: 0, y: 0 };
+            this.pointerId = null;
+            this.flagPosition = null;
+            this.strength = 0;
+
+            this.svgBase = document.getElementById("joystick-base");
+            this.svgDot = document.getElementById("joystick-dot");
+            this.svgFlag = document.getElementById("leader-flag");
+
+            this.initEvents();
+        }
+
+        initEvents() {
+            this.svg.addEventListener("pointerdown", this.start.bind(this), { passive: false });
+            this.svg.addEventListener("pointermove", this.move.bind(this), { passive: false });
+            this.svg.addEventListener("pointerup", this.end.bind(this), { passive: false });
+            this.svg.addEventListener("pointercancel", this.end.bind(this), { passive: false });
+        }
+
+        start(e) {
+            if (COMBAT.playerPack.units.length === 0) {
+                this.hide();
+                return;
+            }
+
+            // console.log("Pointer start event.");
+            if (this.pointerId !== null) return;
+            this.pointerId = e.pointerId;
+            this.active = true;
+            this.origin = this.getSVGCoords(e);
+            this.lastPointerPos = { x: this.origin.x, y: this.origin.y };
+            this.strength = 0;
+
+            // Explicitly prevent default to avoid cancel
+            e.preventDefault();
+            e.target.setPointerCapture(e.pointerId);
+
+            this.svgBase.setAttribute("cx", this.origin.x);
+            this.svgBase.setAttribute("cy", this.origin.y);
+            this.svgBase.setAttribute("visibility", "visible");
+
+            this.svgDot.setAttribute("cx", this.origin.x);
+            this.svgDot.setAttribute("cy", this.origin.y);
+            this.svgDot.setAttribute("visibility", "visible");
+
+            this.svgFlag.setAttribute("visibility", "visible");
+            let centre = COMBAT.playerPack.centre();
+            this.svgFlag.setAttribute("x", centre.x.toFixed(1));
+            this.svgFlag.setAttribute("y", centre.y.toFixed(1));
+
+            this.flagPosition = { x: centre.x, y: centre.y };
+        }
+
+        updateSVGPosition() {
+            if (COMBAT.playerPack.units.length === 0) {
+                this.hide();
+                return;
+            }
+
+            const dx = this.lastPointerPos.x - this.origin.x;
+            const dy = this.lastPointerPos.y - this.origin.y;
+
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const maxSwipeDistSVGUnits = 20;
+            const minStrength = 0.05;
+
+            let cx = this.origin.x;
+            let cy = this.origin.y;
+
+            this.strength = Math.min(1, dist / maxSwipeDistSVGUnits);
+            if (this.strength > minStrength) {
+                const nx = dx / dist;
+                const ny = dy / dist;
+
+                cx += nx * this.strength * maxSwipeDistSVGUnits;
+                cy += ny * this.strength * maxSwipeDistSVGUnits;
+
+                let centre = COMBAT.playerPack.centre();
+                const fx = centre.x + 2 * this.strength * nx * maxSwipeDistSVGUnits;
+                const fy = centre.y + 2 * this.strength * ny * maxSwipeDistSVGUnits;
+                this.svgFlag.setAttribute("x", fx.toFixed(1));
+                this.svgFlag.setAttribute("y", fy.toFixed(1));
+                this.flagPosition = { x: fx, y: fy };
+            } else {
+                // ATTENTION: If strength < minStrength,
+                // then the flag position is not updated!
+                // Thus, holding the stick places the flag in one point,
+                // making it easier to stop the unit.
+            }
+
+            this.svgDot.setAttribute("cx", cx.toFixed(1));
+            this.svgDot.setAttribute("cy", cy.toFixed(1));
+        }
+
+        move(e) {
+            if (COMBAT.playerPack.units.length === 0) {
+                this.hide();
+                return;
+            }
+
+// console.log("Pointer move event.");
+            if (!this.active || e.pointerId !== this.pointerId) return;
+
+            let svgCoords = this.getSVGCoords(e);
+            this.lastPointerPos = { x: svgCoords.x, y: svgCoords.y };
+            this.updateSVGPosition();
+        }
+
+        end(e) {
+            // console.log("Pointer end event.");
+            e.target.releasePointerCapture(e.pointerId);
+
+            if (e.pointerId !== this.pointerId) return;
+            this.active = false;
+            this.pointerId = null;
+            this.strength = 0;
+
+            if (COMBAT.playerPack.units.length > 0) {
+                // Keep the flag where the team currently is, even if invisible,
+                // so that the units don't separate in random directions.
+                let centre = COMBAT.playerPack.centre();
+                this.svgFlag.setAttribute("x", centre.x.toFixed(1));
+                this.svgFlag.setAttribute("y", centre.y.toFixed(1));
+                this.flagPosition = { x: centre.x, y: centre.y };
+            }
+
+            this.hide();
+        }
+
+        hide() {
+            this.svgBase.setAttribute("visibility", "hidden");
+            this.svgDot.setAttribute("visibility", "hidden");
+            this.svgFlag.setAttribute("visibility", "hidden");
+        }
+
+        getSVGCoords(e) {
+            const pt = this.svg.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            return pt.matrixTransform(this.svg.getScreenCTM().inverse());
+        }
+    }
+
+    class Camera {
+        constructor(x, y, radius, svg) {
+            this.x = x;
+            this.y = y;
+            this.vx = 0;
+            this.vy = 0;
+            this.radius = radius;
+            this.svg = svg;
+        }
+
+        followForce() {
+            const centre = COMBAT.playerPack.centre();
+            if (centre === null) {
+                return null;
+            }
+
+            const CAMERA_FOLLOW_FORCE = 50;
+
+            const dx = centre.x - this.x;
+            const dy = centre.y - this.y;
+            const dist2 = dx * dx + dy * dy;
+            if (dist2 === 0) return [0, 0];
+            const dist = Math.sqrt(dist2);
+            const fx = CAMERA_FOLLOW_FORCE * dx / dist;
+            const fy = CAMERA_FOLLOW_FORCE * dy / dist;
+            return [fx, fy];
+        }
+
+        friction() {
+            const CAMERA_FRICTION = 3;
+            const fx = - CAMERA_FRICTION * this.vx;
+            const fy = - CAMERA_FRICTION * this.vy;
+            return [fx, fy];
+        }
+
+        act(dt) {
+            let fx = 0
+            let fy = 0;
+
+            const followForce = this.followForce();
+            if (followForce !== null) {
+                const [x_follow, y_follow] = followForce;
+                fx += x_follow;
+                fy += y_follow;
+            }
+
+            const friction = this.friction();
+            if (friction !== null) {
+                const [x_friction, y_friction] = friction;
+                fx += x_friction;
+                fy += y_friction;
+            }
+
+            this.vx += fx * dt;
+            this.vy += fy * dt;
+            this.x += this.vx * dt;
+            this.y += this.vy * dt;
+
+            document.getElementById("svg-combat-loot").setAttribute("transform", `translate(${-this.x},${-this.y})`);
+            document.getElementById("svg-combat-projectiles").setAttribute("transform", `translate(${-this.x},${-this.y})`);
+            document.getElementById("svg-combat-units").setAttribute("transform", `translate(${-this.x},${-this.y})`);
+            document.getElementById("leader-flag").setAttribute("transform", `translate(${-this.x},${-this.y})`);
+        }
+    }
+
+    class Combat {
+        constructor(scenario) {
+
+            this.scenario = scenario;
+            this.timeFromStart = 0;
+
+            this.act = this.act.bind(this);
+
+            this.actHandler = null;
+            this.lastAnimationTime_ms = null;
+
+            this.playerPack = new Pack();
+            new Unit(ACCOUNT.startingUnit, 0, 0, this.playerPack);
+/*
+            new Unit(UNITS.FIREMAN, 0, 0, this.playerPack);
+            new Unit(UNITS.FARMER, 0, 0, this.playerPack);
+            new Unit(UNITS.POLICEMAN, 0, 0, this.playerPack);
+            new Unit(UNITS.COOK, 0, 0, this.playerPack);
+            new Unit(UNITS.STUDENT, 0, 0, this.playerPack);
+            new Unit(UNITS.ARTIST, 0, 0, this.playerPack);
+            new Unit(UNITS.TEACHER, 0, 0, this.playerPack);
+*/
+
+            this.packs = [ this.playerPack ];
+            this.projectiles = [];
+            this.loot = [];
+            this.projectilesToRemove = [];
+            this.unitsToRemove = [];
+            this.lootToRemove = [];
+
+            this.boss = null;
+
+            this.gold = 0;
+            this.level = 1;
+            this.experience = 0;
+
+            this.active = false;
+
+            let svgCombat = document.getElementById("svg-combat");
+            this.camera = new Camera(0, 0, 50, svgCombat);
+        }
+
+        addExperience(amount) {
+            this.experience += amount;
+            let xpRequired = COMBAT_LEVELS[COMBAT.level - 1];
+            if (xpRequired !== undefined && xpRequired <= this.experience) {
+                COMBAT.pause();
+                this.experience = 0;
+                this.level++;
+                UI.showPopup("popup-level-up");
+            }
+            UI.updateCombatHeader();
+        }
+
+        addGold(amount) {
+            this.gold += amount;
+            document.getElementById("combat-gold-amount").innerHTML = this.gold;
+        }
+
+        drop(x, y, type, amount) {
+            this.loot.push(new Loot(x, y, type, amount));
+        }
+
+        act(t_ms) {
+            if (this.lastAnimationTime_ms === null) {
+                this.lastAnimationTime_ms = t_ms;
+            }
+            const MAX_FRAME_DURATION = 0.1;
+            const dt = Math.min(MAX_FRAME_DURATION, (t_ms - this.lastAnimationTime_ms) / 1000);
+            this.lastAnimationTime_ms = t_ms;
+
+            this.camera.act(dt);
+
+            if (this.playerPack.units.length > 0) {
+                this.timeFromStart += dt;
+            }
+            this.rollSpawns(dt);
+            if (this.timeFromStart > this.scenario.boss.time && this.boss === null) {
+                this.summonBoss();
+            }
+            UI.updateBossBar();
+
+            this.packs.forEach(p => { p.act(dt); });
+            if (UI.joystick.active) {
+                UI.joystick.updateSVGPosition();
+            }
+
+            this.loot.forEach(l => { l.act(dt); });
+            this.loot = this.loot.filter(l => {
+                return this.lootToRemove.indexOf(l) === -1;
+            });
+            this.lootToRemove = [];
+
+            this.projectiles.forEach(p => { p.act(dt); });
+            this.projectiles = this.projectiles.filter(p => {
+                return this.projectilesToRemove.indexOf(p) === -1;
+            });
+            this.projectilesToRemove = [];
+
+            const oldPlayerUnitCount = this.playerPack.units.length;
+            this.packs.forEach(pack => {
+                pack.units = pack.units.filter(unit => {
+                    return this.unitsToRemove.indexOf(unit) === -1;
+                })
+            });
+            this.packs = this.packs.filter(pack => {
+                return pack.units.length > 0;
+            });
+            this.unitsToRemove = [];
+            if (oldPlayerUnitCount > 0 && this.playerPack.units.length === 0) {
+                UI.showPopup("popup-defeat");
+                this.pause();
+            }
+
+            if (this.active) {
+                window.requestAnimationFrame(this.act);
+            }
+        }
+
+        summonBoss() {
+            const direction = 2 * Math.PI * Math.random();
+            const SPAWN_DISTANCE = 100;
+            const spawnPoint = {
+                x: SPAWN_DISTANCE * Math.cos(direction),
+                y: SPAWN_DISTANCE * Math.sin(direction),
+            }
+            const newPack = new Pack();
+            this.boss = new Unit(this.scenario.boss.baseUnit, spawnPoint.x, spawnPoint.y, newPack
+                , this.scenario.boss.sizeModifier, this.scenario.boss.healthModifier);
+            this.packs.push(newPack);
+        }
+
+        resume() {
+            UI.updateCombatHeader();
+            this.active = true;
+            if (this.actHandler !== null) {
+                console.error("Trying to resume a combat that's already active.");
+                window.cancelAnimationFrame(this.actHandler);
+            }
+            this.lastAnimationTime_ms = null;
+            this.actHandler = window.requestAnimationFrame(this.act);
+        }
+
+        pause() {
+            this.active = false;
+            if (this.actHandler === null) {
+                console.error("Trying to pause a combat that's not active.");
+                return;
+            }
+            window.cancelAnimationFrame(this.actHandler);
+            this.actHandler = null;
+            this.lastAnimationTime_ms = null;
+        }
+
+        rollSpawns(dt) {
+            this.scenario.packs.forEach(packInfo => {
+                if ((packInfo.time.start === null || this.timeFromStart >= packInfo.time.start)
+                    && (packInfo.time.end === null || this.timeFromStart <= packInfo.time.end)) {
+                    if (Math.random() < packInfo.frequency * dt) {
+                        this.spawnPack(packInfo);
+                    }
+                }
+            });
+        }
+
+        spawnPack(packInfo) {
+            const direction = 2 * Math.PI * Math.random();
+            const SPAWN_DISTANCE = 2 * this.camera.radius;
+            const spawnPoint = {
+                x: SPAWN_DISTANCE * Math.cos(direction),
+                y: SPAWN_DISTANCE * Math.sin(direction),
+            }
+            const newPack = new Pack();
+            packInfo.units.forEach(unitInfo => {
+                for (let i = 0; i < unitInfo.count; i++) {
+                    new Unit(unitInfo.unit
+                        , spawnPoint.x + this.camera.x
+                        , spawnPoint.y + this.camera.y
+                        , newPack);
+                }
+            });
+            this.packs.push(newPack);
+        }
+    }
+
+    class Unit {
+        constructor(unit, x, y, pack, sizeModifier = 1, healthModifier = 1) {
+
+            this.unit = unit;
+            this.attackTimer = 0;
+            this.health = this.unit.stats[STATS.HEALTH.id] * healthModifier;
+
+            this.x = x;
+            this.y = y;
+            this.vx = 0;
+            this.vy = 0;
+
+            this.elUnit = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            this.elUnit.innerHTML = this.unit.image;
+            this.elUnit.setAttribute("x", x);
+            this.elUnit.setAttribute("y", y);
+            this.elUnit.setAttribute("font-size", (2 * this.unit.radius * sizeModifier).toFixed(1));
+            document.getElementById("svg-combat-units").append(this.elUnit);
+
+            pack.addUnit(this);
+            this.pack = pack;
+        }
+
+        attraction(attractor_x, attractor_y) {
+            const dx = attractor_x - this.x;
+            const dy = attractor_y - this.y;
+            const dist2 = dx * dx + dy * dy;
+            if (dist2 === 0) return [0, 0];
+            const dist = Math.sqrt(dist2);
+            const fx = this.unit.AI.discipline * dx / dist;
+            const fy = this.unit.AI.discipline * dy / dist;
+            return [fx, fy];
+        }
+
+        friction() {
+            const fx = - this.unit.AI.friction * this.vx;
+            const fy = - this.unit.AI.friction * this.vy;
+            return [fx, fy];
+        }
+
+        intersectionAvoidance(unit) {
+            if (unit === this) return null;
+            const dx = unit.x - this.x;
+            const dy = unit.y - this.y;
+            const d2 = dx * dx + dy * dy;
+            const acceptableD = this.unit.radius + unit.unit.radius;
+            const acceptableD2 = acceptableD * acceptableD;
+            if (d2 > acceptableD2) return null;
+            const d = Math.sqrt(d2);
+            const overlap = acceptableD - d;
+            const repellingForce = 1 + overlap / acceptableD;
+
+            const randomAngle = 2 * Math.PI * Math.random();
+            const nx = (d !== 0) ? (dx / d) : Math.cos(randomAngle);
+            const ny = (d !== 0) ? (dy / d) : Math.sin(randomAngle);
+            const OVERLAP_AVOIDANCE = 50;
+            const forceMagnitude = repellingForce * OVERLAP_AVOIDANCE;
+            const fx = - nx * forceMagnitude;
+            const fy = - ny * forceMagnitude;
+
+            return [fx, fy];
+        }
+
+        joystickForce() {
+            if (UI.joystick.flagPosition === null) {
+                return null;
+            }
+
+            const [fx_flag, fy_flag] = this.attraction(
+                UI.joystick.flagPosition.x,
+                UI.joystick.flagPosition.y,
+            );
+            // Change attraction to the flag depending on how far the joystick moved.
+            const strengthModifier = 0.3 + 0.7 * UI.joystick.strength;
+
+            const fx = fx_flag * strengthModifier;
+            const fy = fy_flag * strengthModifier;
+
+            return [fx, fy];
+        }
+
+        packForce() {
+            if (this.pack.units.length < 2) {
+                return null;
+            }
+
+            const packCentre = this.pack.centre();
+            const [fx_pack, fy_pack] = this.attraction(
+                packCentre.x,
+                packCentre.y,
+            );
+
+            const PACK_ATTRACTION = 0.2;
+            const fx = fx_pack * PACK_ATTRACTION;
+            const fy = fy_pack * PACK_ATTRACTION;
+
+            return [fx, fy];
+        }
+
+        attackForce() {
+            if (COMBAT.playerPack.units.length === 0) return null;
+            const packCentre = COMBAT.playerPack.centre();
+            const [fx_pack, fy_pack] = this.attraction(
+                packCentre.x,
+                packCentre.y,
+            );
+
+            const ATTACK_ATTRACTION = 0.1;
+            const fx = fx_pack * ATTACK_ATTRACTION;
+            const fy = fy_pack * ATTACK_ATTRACTION;
+
+            return [fx, fy];
+        }
+
+        getClosestEnemy() {
+            const isThisPlayer = this.pack === COMBAT.playerPack;
+            const enemyUnits = COMBAT.packs
+                .filter(pack => isThisPlayer !== (pack === COMBAT.playerPack))
+                .flatMap(pack => pack.units)
+                .filter(unit => unit !== this);
+            return enemyUnits.reduce((closest, unit) => {
+                const dx = unit.x - this.x;
+                const dy = unit.y - this.y;
+                const distance2 = dx * dx + dy * dy;
+                if (closest === null || distance2 < closest.distance2) {
+                    return {unit, distance2};
+                }
+                return closest;
+            }, null)?.unit ?? null;
+        }
+
+        closestEnemyForce(closestEnemy) {
+            if (closestEnemy === null) return null;
+
+            const dx = closestEnemy.x - this.x;
+            const dy = closestEnemy.y - this.y;
+            const d2 = dx * dx + dy * dy;
+            const d = Math.sqrt(d2);
+
+            const myRange = this.unit.stats[STATS.RANGE.id];
+            const enemyRange = closestEnemy.unit.stats[STATS.RANGE.id];
+
+            let targetDistance;
+            if (enemyRange >= myRange) {
+                // Close in: move towards the enemy
+                targetDistance = 0;
+            } else {
+                // Maintain distance: halfway between ranges
+                targetDistance = (myRange + enemyRange) / 2;
+            }
+
+            // Calculate the force to move towards or away from the target distance
+            if (d === 0) {
+                return null;
+            }
+            // If it's too far, the unit doesn't see the enemy.
+            if (d > this.unit.AI.perception) return null;
+            const TACTICAL_FORCE = 50;
+            const forceMagnitude = Math.sign(1 - targetDistance / d) * TACTICAL_FORCE;
+
+            const nx = dx / d;
+            const ny = dy / d;
+
+            const fx = nx * forceMagnitude;
+            const fy = ny * forceMagnitude;
+
+            return [fx, fy];
+        }
+
+        attackClosestEnemy(closestEnemy, dt) {
+
+            if (this.attackTimer > 0) this.attackTimer -= dt;
+            if (this.attackTimer > 0) return;
+
+            const dx = closestEnemy.x - this.x;
+            const dy = closestEnemy.y - this.y;
+            const d2 = dx * dx + dy * dy;
+            const d = Math.sqrt(d2);
+            let rangePlusRadius = this.unit.stats[STATS.RANGE.id] + this.unit.radius;
+            if (d > rangePlusRadius) return;
+            if (d === 0) return;
+
+            const speedX = this.unit.AI.projectileSpeed * dx / d;
+            const speedY = this.unit.AI.projectileSpeed * dy / d;
+            const lifeTime = rangePlusRadius / this.unit.AI.projectileSpeed;
+            const xOrigin = this.x + this.unit.radius * dx / d;
+            const yOrigin = this.y + this.unit.radius * dy / d;
+            const projectile = new Projectile(xOrigin, yOrigin, speedX, speedY, lifeTime
+                , this.pack === COMBAT.playerPack, this.unit.projectileArt
+                , this.unit.stats[STATS.DAMAGE.id], this.unit.projectileRadius);
+            // TODO When shooting, add "recoil": accelerate the unit back; when melee, add leap forward.
+            COMBAT.projectiles.push(projectile);
+            this.attackTimer += 1 / this.unit.stats[STATS.ATTACK_SPEED.id];
+        }
+
+        act(dt) {
+
+            let ax = 0;
+            let ay = 0;
+
+            if (this.pack === COMBAT.playerPack) {
+                // Player pack
+                const joystickForce = this.joystickForce();
+                if (joystickForce !== null) {
+                    const [fx_joystick, fy_joystick] = joystickForce;
+                    ax += fx_joystick;
+                    ay += fy_joystick;
+                }
+            } else {
+                // Enemy pack
+                const packForce = this.packForce();
+                if (packForce !== null) {
+                    const [fx_pack, fy_pack] = packForce;
+                    ax += fx_pack;
+                    ay += fy_pack;
+                }
+                const attackForce = this.attackForce();
+                if (attackForce !== null) {
+                    const [fx_pack, fy_pack] = attackForce;
+                    ax += fx_pack;
+                    ay += fy_pack;
+                }
+            }
+            const closestEnemy = this.getClosestEnemy();
+            if (closestEnemy !== null) {
+                const closestEnemyForce = this.closestEnemyForce(closestEnemy);
+                if (closestEnemyForce !== null) {
+                    const [fx_closeIn, fy_closeIn] = closestEnemyForce;
+                    ax += fx_closeIn;
+                    ay += fy_closeIn;
+                }
+                this.attackClosestEnemy(closestEnemy, dt);
+            }
+
+            const otherUnits = COMBAT.packs.flatMap(pack => pack.units).filter(unit => unit !== this);
+            otherUnits.forEach(other => {
+                let avoidance = this.intersectionAvoidance(other);
+                if (avoidance !== null) {
+                    const [fx_rep, fy_rep] = avoidance;
+                    ax += fx_rep;
+                    ay += fy_rep;
+                }
+            });
+
+            const [fx_friction, fy_friction] = this.friction();
+            ax += fx_friction;
+            ay += fy_friction;
+
+            // TODO Make sure the speed is limited by, and reaches at all, the speed parameter.
+
+            this.vx += dt * ax;
+            this.vy += dt * ay;
+            this.x += dt * this.vx;
+            this.y += dt * this.vy;
+
+            this.elUnit.setAttribute("x", this.x.toFixed(1));
+            this.elUnit.setAttribute("y", this.y.toFixed(1));
+        }
+
+        damage(damage) {
+            if (this.health <= 0) return; // What is dead may never die [again].
+            this.health -= damage;
+            // TODO Add animation of getting red on getting a wound.
+            if (this.health <= 0) this.die();
+        }
+
+        die() {
+            // TODO Add death animation (at least fade to full transparency).
+            this.elUnit.remove();
+            COMBAT.unitsToRemove.push(this);
+            if (this.pack !== COMBAT.playerPack) {
+                COMBAT.drop(this.x, this.y, this.unit.experience);
+                COMBAT.drop(this.x, this.y, this.unit.gold);
+            }
+
+            if (this === COMBAT.boss) {
+                this.dieAsBoss();
+            }
+        }
+
+        dieAsBoss() {
+            ACCOUNT.progress[COMBAT.scenario.id].bossKilled = true;
+            if (ACCOUNT.deck[COMBAT.boss.unit.id] === undefined
+                || ACCOUNT.deck[COMBAT.boss.unit.id] === null) {
+                UI.showPopup("popup-boss-defeated");
+                // Unlock new unit
+                ACCOUNT.deck[COMBAT.boss.unit.id] = {
+                    level: 1,
+                };
+                // Unlock new scenario
+                let currentIndex = null;
+                for (let i = 0; i < SCENARIOS.length; i++) {
+                    if (COMBAT.scenario === SCENARIOS[i]) {
+                        currentIndex = i;
+                        break;
+                    }
+                }
+                if (currentIndex === null) throw `ERROR: Current scenario ${COMBAT.scenario.id} not found!`;
+                const newScenario = SCENARIOS[currentIndex + 1];
+                if (newScenario === undefined || newScenario === null) throw `ERROR: Trying to unlock a scenario #${currentIndex + 1} that doesn't exist!`;
+                ACCOUNT.progress[newScenario.id] = { time: null, bossKilled: false, };
+            }
+        }
+    }
+
+    class Loot {
+        constructor(x, y, type) {
+            this.el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            this.el.innerHTML = type.symbol;
+            this.el.setAttribute("x", x);
+            this.el.setAttribute("y", y);
+            this.el.setAttribute("font-size", (2 * type.radius).toFixed(1));
+            const lootLayer = document.getElementById("svg-combat-loot");
+            lootLayer.append(this.el);
+            this.x = x;
+            this.y = y;
+            this.vx = 0;
+            this.vy = 0;
+            this.type = type;
+        }
+
+        // TODO Double code for this and units. Extract a superclass?
+        friction() {
+            let fx = - this.type.friction * this.vx;
+            let fy = - this.type.friction * this.vy;
+            return [fx, fy];
+        }
+
+        playerAttraction() {
+            if (COMBAT.playerPack.units.length === 0) return null;
+            let fx = 0;
+            let fy = 0;
+            COMBAT.playerPack.units.forEach(unit => {
+                const dx = unit.x - this.x;
+                const dy = unit.y - this.y;
+                const distance2 = dx * dx + dy * dy;
+                const distance = Math.sqrt(distance2);
+                // TODO Make unit.AI.magnetDistance a visible STAT
+                if (distance <= unit.unit.AI.magnetDistance) {
+                    fx += unit.unit.AI.magnetForce * dx / distance;
+                    fy += unit.unit.AI.magnetForce * dy / distance;
+                }
+            });
+            return [fx, fy];
+        }
+
+        tryHit() {
+            const unit = COMBAT.playerPack.units.find(unit => {
+                const dx = unit.x - this.x;
+                const dy = unit.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                return dist < unit.unit.radius;
+            });
+            if (unit === undefined) return;
+            this.destroy();
+            this.type.onCollect();
+        }
+
+        destroy() {
+            this.el.remove();
+            COMBAT.lootToRemove.push(this);
+        }
+
+        act(dt) {
+            let ax = 0;
+            let ay = 0;
+
+            if (this.tryHit()) return;
+
+            const playerAttraction = this.playerAttraction();
+            if (playerAttraction !== null) {
+                const [fx_closeIn, fy_closeIn] = playerAttraction;
+                ax += fx_closeIn;
+                ay += fy_closeIn;
+            }
+
+            const otherLoot = COMBAT.loot.filter(loot => loot !== this);
+            otherLoot.forEach(other => {
+                let avoidance = this.intersectionAvoidance(other);
+                if (avoidance !== null) {
+                    const [fx_rep, fy_rep] = avoidance;
+                    ax += fx_rep;
+                    ay += fy_rep;
+                }
+            });
+
+            const [fx_friction, fy_friction] = this.friction();
+            ax += fx_friction;
+            ay += fy_friction;
+
+            this.vx += dt * ax;
+            this.vy += dt * ay;
+            this.x += dt * this.vx;
+            this.y += dt * this.vy;
+
+            this.el.setAttribute("x", this.x.toFixed(1));
+            this.el.setAttribute("y", this.y.toFixed(1));
+        }
+
+        intersectionAvoidance(loot) {
+            if (loot === this) return null;
+            const dx = loot.x - this.x;
+            const dy = loot.y - this.y;
+            const d2 = dx * dx + dy * dy;
+            const acceptableD = this.type.radius + loot.type.radius;
+            const acceptableD2 = acceptableD * acceptableD;
+            if (d2 > acceptableD2) return null;
+            const d = Math.sqrt(d2);
+            const overlap = acceptableD - d;
+            const repellingForce = 1 + overlap / acceptableD;
+
+            const randomAngle = 2 * Math.PI * Math.random();
+            const nx = (d !== 0) ? (dx / d) : Math.cos(randomAngle);
+            const ny = (d !== 0) ? (dy / d) : Math.sin(randomAngle);
+            const OVERLAP_AVOIDANCE = 50;
+            const forceMagnitude = repellingForce * OVERLAP_AVOIDANCE;
+            const fx = - nx * forceMagnitude;
+            const fy = - ny * forceMagnitude;
+
+            return [fx, fy];
+        }
+    }
+
+    class Projectile {
+        constructor(xOrigin, yOrigin, speedX, speedY, lifeTime, isPlayerSide, symbol, damage, radius) {
+            this.el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            this.el.innerHTML = symbol;
+            this.el.setAttribute("x", xOrigin);
+            this.el.setAttribute("y", yOrigin);
+            this.el.setAttribute("font-size", (2 * radius).toFixed(1));
+            const projectileLayer = document.getElementById("svg-combat-projectiles");
+            projectileLayer.append(this.el);
+            this.x = xOrigin;
+            this.y = yOrigin;
+            this.speedX = speedX;
+            this.speedY = speedY;
+            this.isPlayerSide = isPlayerSide;
+            this.lifeTime = lifeTime;
+            this.damage = damage;
+        }
+
+        act(dt) {
+            this.lifeTime -= dt;
+            if (this.lifeTime <= 0) {
+                this.destroy();
+            }
+            this.x += this.speedX * dt;
+            this.y += this.speedY * dt;
+            this.tryHit();
+            this.el.setAttribute("x", this.x);
+            this.el.setAttribute("y", this.y);
+        }
+
+        destroy() {
+            this.el.remove();
+            COMBAT.projectilesToRemove.push(this);
+        }
+
+        tryHit() {
+            const enemyUnits = COMBAT.packs
+                .filter(pack => this.isPlayerSide !== (pack === COMBAT.playerPack))
+                .flatMap(pack => pack.units);
+            const target = enemyUnits.find(unit => {
+                const dx = unit.x - this.x;
+                const dy = unit.y - this.y;
+                const distance2 = dx * dx + dy * dy;
+                let radius = unit.unit.radius;
+                return distance2 < radius * radius;
+            });
+            if (typeof target === "undefined") return;
+            target.damage(this.damage);
+            this.destroy();
+        }
+    }
+
+    class Pack {
+        constructor() {
+            this.units = [];
+        }
+
+        addUnit(unit) {
+            this.units.push(unit);
+        }
+
+        act(dt) {
+            this.units.forEach(u => u.act(dt));
+        }
+
+        centre() {
+            if (this.units.length === 0) return null;
+            let x = 0;
+            let y = 0;
+            for (const unit of this.units) {
+                x += unit.x;
+                y += unit.y;
+            }
+            x /= this.units.length;
+            y /= this.units.length;
+            return { x: x, y: y };
+        }
+    }
+
+    class UI {
+
+        // Used to send the information about which unit to show to the onSHow() of the unit screen.
+        static selectedUnit = null;
+
+        static levelUpBonuses = [];
+
+        static updateHeader() {
+            document.getElementById("gold-amount").innerHTML = ACCOUNT.gold.toString();
+            document.getElementById("avatar").innerHTML = ACCOUNT.startingUnit.portrait;
+        }
+
+        static POPUPS = {
+            "popup-defeat": {
+                onShow: () => {
+                    const totalSeconds = Math.floor(COMBAT.timeFromStart);
+                    const prevTime = ACCOUNT.progress[COMBAT.scenario.id].time;
+                    // TODO Indicator "New record!"
+                    if (prevTime === undefined || prevTime === null || totalSeconds > prevTime) {
+                        ACCOUNT.progress[COMBAT.scenario.id].time = totalSeconds;
+                    }
+                    const minutes = Math.floor(totalSeconds / 60);
+                    const seconds = totalSeconds % 60;
+                    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    document.getElementById("time-survived").innerHTML = timeString;
+                    document.getElementById("coins-collected").innerHTML = COMBAT.gold;
+                    document.getElementById("max-level").innerHTML = COMBAT.level;
+                    ACCOUNT.gold += COMBAT.gold;
+                }
+            },
+            "popup-level-up": {
+                onShow: () => {
+                    let choiceIndex = 0;
+                    const options = [];
+                    UI.levelUpBonuses = [];
+                    do {
+                        if (options.length === 0) {
+                            for (const [key, unit] of Object.entries(UNITS)) {
+                                if (ACCOUNT.deck.hasOwnProperty(unit.id)) options.push(unit);
+                            }
+                        }
+                        document.getElementById("not-much-choice").classList.toggle("hidden", options.length > 1);
+                        let index = Math.floor(Math.random() * options.length);
+                        const choice = options[index];
+                        options.splice(index, 1);
+                        choiceIndex++;
+                        UI.levelUpBonuses[choiceIndex] = choice;
+                        document.getElementById("choice-" + choiceIndex + "-name").innerHTML
+                            = Localisation.CURRENT_LANGUAGE[choice.name_i18n];
+                        document.getElementById("choice-" + choiceIndex + "-portrait").innerHTML = choice.portrait;
+                        document.getElementById("choice-" + choiceIndex + "-level").innerHTML = ACCOUNT.deck[choice.id].level;
+                    } while (choiceIndex < 3);
+                }
+            },
+            "popup-settings": {
+                onShow: () => {
+
+                }
+            },
+            "popup-not-enough-gold": {
+                onShow: () => {
+
+                }
+            },
+            "popup-boss-defeated": {
+                onShow: () => {
+                    COMBAT.pause();
+                    document.getElementById("boss-hp-progress-bar").classList.add("hidden");
+                    document.getElementById("boss-portrait").innerHTML = COMBAT.boss.unit.portrait;
+                    document.getElementById("boss-name").innerHTML = Localisation.CURRENT_LANGUAGE[COMBAT.boss.unit.name_i18n];
+                }
+            },
+        }
+
+        static SCREENS = {
+            "screen-title": {
+                onShow: () => {
+                    console.log("Updating title screen...");
+                    UI.updateHeader();
+                    document.getElementById("starting-unit-portrait-title").innerHTML = ACCOUNT.startingUnit.portrait;
+                    document.getElementById("starting-unit-name-title").innerHTML = Localisation.CURRENT_LANGUAGE[ACCOUNT.startingUnit.name_i18n];
+                    document.getElementById("starting-unit-level-title").innerHTML = ACCOUNT.deck[ACCOUNT.startingUnit.id].level;
+                }
+            },
+            "screen-scenario": {
+                onShow: () => {
+                    console.log("Updating scenario screen...");
+                    UI.updateHeader();
+                    document.getElementById("scenario-name").innerHTML = Localisation.CURRENT_LANGUAGE[ACCOUNT.selectedScenario.name_i18n];
+
+                    let progress = ACCOUNT.progress[ACCOUNT.selectedScenario.id];
+                    if (progress.time === undefined || progress.time === null) {
+                        document.getElementById("best-time").innerHTML = "-";
+                    } else {
+                        const minutes = Math.floor(progress.time / 60);
+                        const seconds = progress.time % 60;
+                        const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                        document.getElementById("best-time").innerHTML = timeString;
+                    }
+
+                    document.getElementById("boss-not-defeated").classList.toggle("hidden", progress.bossKilled);
+                    document.getElementById("boss-defeated").classList.toggle("hidden", !progress.bossKilled);
+                    const isFirstScenario = SCENARIOS[0].id === ACCOUNT.selectedScenario.id;
+                    document.getElementById("scenario-button-left").classList.toggle("disabled", isFirstScenario);
+                    const isLastScenario = SCENARIOS[SCENARIOS.length - 1].id === ACCOUNT.selectedScenario.id;
+                    const isBossKilled = ACCOUNT.progress[ACCOUNT.selectedScenario.id].bossKilled;
+                    document.getElementById("scenario-button-right").classList.toggle("disabled", isLastScenario || !isBossKilled);
+
+                    document.getElementById("scenario-art").innerHTML = ACCOUNT.selectedScenario.image;
+
+                    document.getElementById("starting-unit-portrait-scenario").innerHTML = ACCOUNT.startingUnit.portrait;
+                    document.getElementById("starting-unit-name-scenario").innerHTML = Localisation.CURRENT_LANGUAGE[ACCOUNT.startingUnit.name_i18n];
+                    document.getElementById("starting-unit-level-scenario").innerHTML = ACCOUNT.deck[ACCOUNT.startingUnit.id].level;
+                }
+            },
+            "screen-encyclopedia": {
+                onShow: () => {
+                    console.log("Updating encyclopedia...");
+                    UI.updateHeader();
+                    const elGrid = document.getElementById("deck-grid");
+                    elGrid.innerHTML = "";
+                    for (const [key, unit] of Object.entries(UNITS)) {
+
+                        const hasUnit = ACCOUNT.deck.hasOwnProperty(unit.id);
+
+                        const elUnitTile = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+                        elUnitTile.classList.add("encyclopedia-unit-tile");
+                        if (hasUnit) {
+                            elUnitTile.addEventListener("click", () => {
+                                UI.selectedUnit = unit;
+                                UI.showScreen("screen-unit", true);
+                            });
+                        } else {
+                            elUnitTile.classList.add("locked");
+                        }
+
+                        const elUnitPortrait = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+                        elUnitPortrait.classList.add("portrait");
+                        elUnitPortrait.classList.toggle("selected", unit === ACCOUNT.startingUnit);
+                        elUnitPortrait.innerHTML = hasUnit ? unit.portrait : Localisation.CURRENT_LANGUAGE["[question-mark]"];
+                        elUnitTile.append(elUnitPortrait);
+
+                        const elUnitName = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+                        elUnitName.innerHTML = Localisation.CURRENT_LANGUAGE[unit.name_i18n];
+                        elUnitTile.append(hasUnit ? elUnitName : Localisation.CURRENT_LANGUAGE["unit-not-unlocked-abbreviation"]);
+
+                        const elUnitLvl = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+                        elUnitTile.append(elUnitLvl);
+                        if (hasUnit) {
+                            const elUnitLvlA = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+                            elUnitLvlA.setAttribute("data-i18n", "lv");
+                            elUnitLvl.append(elUnitLvlA);
+                            elUnitLvl.append("\u00A0");
+                            const elUnitLvlB = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+                            elUnitLvlB.innerHTML = ACCOUNT.deck[unit.id].level;
+                            elUnitLvl.append(elUnitLvlB);
+                        }
+                        elGrid.append(elUnitTile);
+                    }
+                    Localisation.fillTexts();
+                    // TODO Add paginator functionality
+                }
+            },
+            "screen-unit": {
+                onShow: () => {
+                    console.log(`Updating unit screen for: ${UI.selectedUnit.id}`);
+
+                    document.getElementById("unit-portrait").innerHTML = UI.selectedUnit.portrait;
+                    document.getElementById("unit-name").innerHTML = Localisation.text(UI.selectedUnit.name_i18n);
+                    document.getElementById("unit-description").innerHTML = Localisation.text(UI.selectedUnit.description_i18n);
+
+                    const level = ACCOUNT.deck[UI.selectedUnit.id].level;
+                    document.getElementById("unit-level").innerHTML = level;
+
+                    const maxLevel = level > UPGRADES.length;
+                    const setValue = (stat, level) => {
+                        let currentValue = stat.valueAtLevel(UI.selectedUnit.stats[stat.id], level);
+                        document.getElementById("stat-" + stat.id + "-value").innerHTML = currentValue;
+                        const nextLevelValue = stat.valueAtLevel(UI.selectedUnit.stats[stat.id], level + 1);
+
+                        if (maxLevel) {
+                            document.getElementById("stat-" + stat.id + "-level-up-bonus").innerHTML = '';
+                        } else {
+                            const delta = nextLevelValue - currentValue;
+                            if (delta === 0) {
+                                document.getElementById("stat-" + stat.id + "-level-up-bonus").innerHTML = '';
+                            } else {
+                                const deltaStr = delta >= 1 ? Math.round(delta) : Number(delta.toPrecision(2));
+                                if (delta > 0) {
+                                    document.getElementById("stat-" + stat.id + "-level-up-bonus").innerHTML = `(+${deltaStr})`;
+                                } else {
+                                    document.getElementById("stat-" + stat.id + "-level-up-bonus").innerHTML = `(${deltaStr})`;
+                                }
+                            }
+                        }
+                    };
+
+                    setValue(STATS.HEALTH, level);
+                    setValue(STATS.DAMAGE, level);
+                    setValue(STATS.ATTACK_SPEED, level);
+                    setValue(STATS.RANGE, level);
+                    setValue(STATS.SPEED, level);
+                    setValue(STATS.ARMOUR, level);
+                    setValue(STATS.MAGIC_RESIST, level);
+                    setValue(STATS.CRIT_CHANCE, level);
+
+                    document.getElementById("upgrade-button").classList.toggle("hidden", maxLevel);
+                    document.getElementById("max-level-label").classList.toggle("hidden", !maxLevel);
+                    if (!maxLevel) {
+                        const cost = UPGRADES[level - 1].cost;
+                        document.getElementById("upgrade-cost").innerHTML = cost;
+                        document.getElementById("upgrade-button").classList.toggle("disabled", ACCOUNT.gold < cost);
+                    }
+
+                    // Show or hide 'Set as starting unit' vs. current unit label
+                    const isCurrent = UI.selectedUnit === ACCOUNT.startingUnit;
+                    document.getElementById("set-current-unit-button").classList.toggle("hidden", isCurrent);
+                    document.getElementById("is-current-unit-label").classList.toggle("hidden", !isCurrent);
+
+                    UI.updateHeader();
+
+                }
+            },
+            "screen-combat": {
+                onShow: () => {
+                    console.log("Updating ...");
+                    if (!UI.joystick) {
+                        const svg = document.getElementById("svg-combat");
+                        const elJoystick = document.getElementById("joystick");
+                        UI.joystick = new Joystick(svg, elJoystick);
+                    }
+                    UI.restartCombat();
+                    UI.updateCombatHeader();
+                }
+            },
+        }
+
+        static chooseLevelUpBonus(id) {
+            let centre = COMBAT.playerPack.centre();
+            new Unit(UI.levelUpBonuses[id], centre.x, centre.y, COMBAT.playerPack);
+            UI.hidePopups();
+            COMBAT.resume();
+        }
+
+        static scrollScenario(delta) {
+            let currentIndex = null;
+            for (let i = 0; i < SCENARIOS.length; i++) {
+                if (ACCOUNT.selectedScenario === SCENARIOS[i]) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            if (currentIndex === null) throw `ERROR: Current scenario ${ACCOUNT.selectedScenario.id} not found!`;
+            const newScenario = SCENARIOS[currentIndex + delta];
+            if (newScenario === undefined || newScenario === null) throw `ERROR: Trying to switch to a scenario #${currentIndex + delta} that doesn't exist!`;
+            let progress = ACCOUNT.progress[newScenario.id];
+            if (progress === undefined || progress === null) throw `ERROR: Trying to switch to a scenario that's not unlocked yet!`;
+            ACCOUNT.selectedScenario = newScenario;
+            UI.showScreen("screen-scenario", true);
+        }
+
+        static restartCombat() {
+            if (COMBAT !== null) COMBAT.pause();
+            document.getElementById("svg-combat-units").innerHTML = '';
+            document.getElementById("svg-combat-projectiles").innerHTML = '';
+            document.getElementById("svg-combat-loot").innerHTML = '';
+            document.getElementById("boss-hp-progress-bar").classList.add("hidden");
+            UI.joystick.hide();
+            this.hidePopups();
+            COMBAT = new Combat(ACCOUNT.selectedScenario);
+            COMBAT.resume();
+        }
+
+        static init() {
+            Localisation.fillTexts();
+            this.selectedUnit = UNITS.FARMER;
+            this.showScreen("screen-title", true, false);
+        }
+        static showScreen(screenId, showHeader, headerBackButton = true) {
+            console.log(`Switching to screen ${screenId}`);
+
+            // Run screen-specific update logic if defined
+            const screen = UI.SCREENS[screenId];
+            if (screen && typeof screen.onShow === "function") {
+                screen.onShow();
+            }
+
+            // TOTO Not sure if I should do this or not.
+            UI.hidePopups();
+
+            let elScreens = document.getElementsByClassName("screen");
+            for (let i = 0; i < elScreens.length; i++) {
+                const elScreen = elScreens.item(i);
+                elScreen.classList.toggle("hidden", elScreen.id !== screenId);
+            }
+            const elHeader = document.getElementById("header");
+            elHeader.classList.toggle("hidden", !showHeader);
+            const elHeaderButtonBack = document.getElementById("header-button-back");
+            elHeaderButtonBack.classList.toggle("hidden", !headerBackButton);
+            const elHeaderButtonSettings = document.getElementById("header-button-settings");
+            elHeaderButtonSettings.classList.toggle("hidden", headerBackButton);
+        }
+        static showPopup(popupId) {
+            let elPopupContainer = document.getElementById("popup-container");
+
+            // Run screen-specific update logic if defined
+            const popup = UI.POPUPS[popupId];
+            if (popup && typeof popup.onShow === "function") {
+                popup.onShow();
+            }
+
+            elPopupContainer.classList.remove("hidden");
+            let elPopups = document.getElementsByClassName("popup");
+            for (let i = 0; i < elPopups.length; i++) {
+                const elPopup = elPopups.item(i);
+                elPopup.classList.toggle("hidden", elPopup.id !== popupId);
+            }
+        }
+
+        static hidePopups() {
+            let elPopupContainer = document.getElementById("popup-container");
+            elPopupContainer.classList.add("hidden");
+            let elPopups = document.getElementsByClassName("popup");
+            for (let i = 0; i < elPopups.length; i++) {
+                const elPopup = elPopups.item(i);
+                elPopup.classList.add("hidden");
+            }
+        }
+
+        static upgradeCurrentUnit() {
+            const level = ACCOUNT.deck[UI.selectedUnit.id].level;
+            const cost = UPGRADES[level - 1].cost;
+            if (ACCOUNT.gold >= cost) {
+                ACCOUNT.gold -= cost;
+                ACCOUNT.deck[UI.selectedUnit.id].level++;
+                UI.showScreen("screen-unit", true);
+            } else {
+                UI.showPopup("popup-not-enough-gold");
+            }
+        }
+
+        static makeCurrentUnitStarting() {
+            ACCOUNT.startingUnit = UI.selectedUnit;
+            UI.showScreen("screen-unit", true);
+        }
+
+        static updateCombatHeader() {
+            document.getElementById("combat-gold-amount").innerHTML = COMBAT.gold;
+            document.getElementById("combat-level").innerHTML = COMBAT.level;
+            let xpRequired = COMBAT_LEVELS[COMBAT.level - 1];
+            const xpString = xpRequired === undefined ?
+                Localisation.CURRENT_LANGUAGE["max-level"]
+                : COMBAT.experience + " / " + xpRequired + " exp";
+            document.getElementById("xp-amount").innerHTML = xpString;
+        }
+
+        static updateBossBar() {
+            if (COMBAT.boss === null) return;
+            let progressBar = document.getElementById("boss-hp-progress-bar");
+            progressBar.classList.toggle("hidden", COMBAT.boss.health <= 0);
+            const maxHealth = COMBAT.scenario.boss.healthModifier * COMBAT.scenario.boss.baseUnit.stats[STATS.HEALTH.id];
+            const healthPercentage = Math.max(100.0 * COMBAT.boss.health / maxHealth, 0).toFixed(1);
+            progressBar.style.background = `linear-gradient(to right, #870019 ${healthPercentage}%, #223b5a ${healthPercentage}%)`;
+        }
+    }
+
+    UI.init();
+</script>
+</body>
+</html>
