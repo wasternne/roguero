@@ -979,23 +979,35 @@
             valueAtLevel: (startValue, level) => {
                 return Math.round(startValue * Math.pow(1.2, level - 1));
             },
+            valueAtLeveString: (startValue, level) => {
+                return STATS.HEALTH.valueAtLevel(startValue, level);
+            },
         },
         DAMAGE: {
             id: "damage",
             valueAtLevel: (startValue, level) => {
                 return Math.round(startValue * Math.pow(1.2, level - 1));
             },
+            valueAtLeveString: (startValue, level) => {
+                return STATS.DAMAGE.valueAtLevel(startValue, level);
+            },
         },
         ATTACK_SPEED: {
             id: "attack-speed",
             valueAtLevel: (startValue, level) => {
-                return (startValue / Math.pow(1.1, level - 1)).toFixed(1);
+                return startValue * Math.pow(1.2, level - 1);
+            },
+            valueAtLeveString: (startValue, level) => {
+                return STATS.ATTACK_SPEED.valueAtLevel(startValue, level).toFixed(1);
             },
         },
         RANGE: {
             id: "range",
             valueAtLevel: (startValue, level) => {
-                return (startValue * Math.pow(1.2, level - 1)).toFixed(1);
+                return startValue * Math.pow(1.2, level - 1);
+            },
+            valueAtLeveString: (startValue, level) => {
+                return STATS.RANGE.valueAtLevel(startValue, level).toFixed(1);
             },
         },
         SPEED: {
@@ -1003,17 +1015,26 @@
             valueAtLevel: (startValue, level) => {
                 return startValue;
             },
+            valueAtLeveString: (startValue, level) => {
+                return STATS.SPEED.valueAtLevel(startValue, level);
+            },
         },
         ARMOUR: {
             id: "armour",
             valueAtLevel: (startValue, level) => {
                 return Math.round(startValue * Math.pow(1.2, level - 1));
             },
+            valueAtLeveString: (startValue, level) => {
+                return STATS.ARMOUR.valueAtLevel(startValue, level);
+            },
         },
         MAGIC_RESIST: {
             id: "magic-resist",
             valueAtLevel: (startValue, level) => {
                 return Math.round(startValue * Math.pow(1.2, level - 1));
+            },
+            valueAtLeveString: (startValue, level) => {
+                return STATS.MAGIC_RESIST.valueAtLevel(startValue, level);
             },
         },
         CRIT_CHANCE: {
@@ -1022,6 +1043,9 @@
                 return startValue;
                 // Not just hard to choose a good progression formula, but also breaks the UI
                 // return (1 - (1 - startValue) / Math.pow(1.05, level - 1)).toFixed(2);
+            },
+            valueAtLeveString: (startValue, level) => {
+                return STATS.CRIT_CHANCE.valueAtLevel(startValue, level).toFixed(2);
             },
         },
     }
@@ -1093,11 +1117,11 @@
             gold: DROP.GOLD_1,
             experience: DROP.EXPERIENCE_1,
             stats: {
-                [STATS.HEALTH.id]: 3,
-                [STATS.DAMAGE.id]: 2,
-                [STATS.ATTACK_SPEED.id]: 1,
-                [STATS.RANGE.id]: 12,
-                [STATS.SPEED.id]: 3,
+                [STATS.HEALTH.id]: 5,
+                [STATS.DAMAGE.id]: 6,
+                [STATS.ATTACK_SPEED.id]: 1.5,
+                [STATS.RANGE.id]: 16,
+                [STATS.SPEED.id]: 18.0,
                 [STATS.ARMOUR.id]: 1,
                 [STATS.MAGIC_RESIST.id]: 0,
                 [STATS.CRIT_CHANCE.id]: 0.1,
@@ -1111,92 +1135,62 @@
                 magnetForce: 300,
             },
         },
-        STUDENT: {
-            id: "unit-student",
-            name_i18n: "unit-student",
-            description_i18n: "unit-student-description",
+        HARE: {
+            id: "unit-hare",
+            name_i18n: "unit-hare",
+            description_i18n: "unit-hare-description",
             radius: 4,
-            portrait: "🧑‍🎓",
-            image: "🧑‍🎓",
-            projectileArt: '📕',
+            portrait: "hare",
+            image: "hare",
+            projectileArt: 'projectile-sphere',
             projectileRadius: 2,
             gold: DROP.GOLD_1,
             experience: DROP.EXPERIENCE_1,
             stats: {
-                [STATS.HEALTH.id]: 8,
-                [STATS.DAMAGE.id]: 3,
-                [STATS.ATTACK_SPEED.id]: 0.4,
-                [STATS.RANGE.id]: 2,
-                [STATS.SPEED.id]: 3,
-                [STATS.ARMOUR.id]: 0,
+                [STATS.HEALTH.id]: 6,
+                [STATS.DAMAGE.id]: 5,
+                [STATS.ATTACK_SPEED.id]: 1.7,
+                [STATS.RANGE.id]: 15,
+                [STATS.SPEED.id]: 25,
+                [STATS.ARMOUR.id]: 1,
                 [STATS.MAGIC_RESIST.id]: 0,
-                [STATS.CRIT_CHANCE.id]: 0.2,
+                [STATS.CRIT_CHANCE.id]: 0.1,
             },
             AI: {
                 discipline: 100,
-                friction: 4,
-                perception: 50,
-                projectileSpeed: 100,
+                friction: 2,
+                perception: 70,
+                projectileSpeed: 36,
                 magnetDistance: 20,
                 magnetForce: 300,
             },
         },
-        ARTIST: {
-            id: "unit-artist",
-            name_i18n: "unit-artist",
-            description_i18n: "unit-artist-description",
+        SNAKE: {
+            id: "unit-snake",
+            name_i18n: "unit-snake",
+            description_i18n: "unit-snake-description",
             radius: 4,
-            portrait: "🧑‍🎨",
-            image: "🧑‍🎨",
-            projectileArt: '✏',
-            projectileRadius: 2,
-            gold: DROP.GOLD_1,
-            experience: DROP.EXPERIENCE_1,
-            stats: {
-                [STATS.HEALTH.id]: 5,
-                [STATS.DAMAGE.id]: 1,
-                [STATS.ATTACK_SPEED.id]: 0.3,
-                [STATS.RANGE.id]: 4,
-                [STATS.SPEED.id]: 4,
-                [STATS.ARMOUR.id]: 0,
-                [STATS.MAGIC_RESIST.id]: 8,
-                [STATS.CRIT_CHANCE.id]: 0.05,
-            },
-            AI: {
-                discipline: 100,
-                friction: 4,
-                perception: 50,
-                projectileSpeed: 100,
-                magnetDistance: 20,
-                magnetForce: 300,
-            },
-        },
-        COOK: {
-            id: "unit-cook",
-            name_i18n: "unit-cook",
-            description_i18n: "unit-cook-description",
-            radius: 4,
-            portrait: "🧑‍🍳",
-            image: "🧑‍🍳",
-            projectileArt: '🍳',
+            portrait: "snake",
+            image: "snake",
+            projectileArt: 'projectile-sphere',
             projectileRadius: 2,
             gold: DROP.GOLD_1,
             experience: DROP.EXPERIENCE_1,
             stats: {
                 [STATS.HEALTH.id]: 8,
-                [STATS.DAMAGE.id]: 4,
-                [STATS.ATTACK_SPEED.id]: 1.0,
-                [STATS.RANGE.id]: 4,
-                [STATS.SPEED.id]: 3,
-                [STATS.ARMOUR.id]: 4,
-                [STATS.MAGIC_RESIST.id]: 1,
-                [STATS.CRIT_CHANCE.id]: 0.15,
+                [STATS.DAMAGE.id]: 12,
+                [STATS.ATTACK_SPEED.id]: 1,
+                [STATS.RANGE.id]: 18,
+                [STATS.SPEED.id]: 12.0,
+                [STATS.ARMOUR.id]: 2,
+                [STATS.MAGIC_RESIST.id]: 0,
+                [STATS.CRIT_CHANCE.id]: 0.1,
             },
             AI: {
-                discipline: 80,
-                friction: 2,
+                discipline: 100,
+                friction: 3,
                 perception: 50,
-                projectileSpeed: 100,
+                projectileSpeed: 60,
                 magnetDistance: 20,
                 magnetForce: 300,
             },
@@ -1213,84 +1207,234 @@
             gold: DROP.GOLD_1,
             experience: DROP.EXPERIENCE_1,
             stats: {
-                [STATS.HEALTH.id]: 14,
-                [STATS.DAMAGE.id]: 4,
-                [STATS.ATTACK_SPEED.id]: 0.7,
-                [STATS.RANGE.id]: 40,
-                [STATS.SPEED.id]: 7,
-                [STATS.ARMOUR.id]: 5,
-                [STATS.MAGIC_RESIST.id]: 2,
-                [STATS.CRIT_CHANCE.id]: 0.04,
+                [STATS.HEALTH.id]: 12,
+                [STATS.DAMAGE.id]: 10,
+                [STATS.ATTACK_SPEED.id]: 1.2,
+                [STATS.RANGE.id]: 18,
+                [STATS.SPEED.id]: 25,
+                [STATS.ARMOUR.id]: 2,
+                [STATS.MAGIC_RESIST.id]: 0,
+                [STATS.CRIT_CHANCE.id]: 0.1,
             },
             AI: {
                 discipline: 100,
                 friction: 4,
                 perception: 50,
-                projectileSpeed: 40,
+                projectileSpeed: 36,
                 magnetDistance: 20,
                 magnetForce: 300,
             },
         },
-        TEACHER: {
-            id: "unit-teacher",
-            name_i18n: "unit-teacher",
-            description_i18n: "unit-teacher-description",
+        OWL: {
+            id: "unit-owl",
+            name_i18n: "unit-owl",
+            description_i18n: "unit-owl-description",
             radius: 4,
-            portrait: "🧑‍🏫",
-            image: "🧑‍🏫",
-            projectileArt: '📕',
+            portrait: "owl",
+            image: "owl",
+            projectileArt: 'projectile-sphere',
             projectileRadius: 2,
             gold: DROP.GOLD_1,
             experience: DROP.EXPERIENCE_1,
             stats: {
-                [STATS.HEALTH.id]: 7,
-                [STATS.DAMAGE.id]: 1,
-                [STATS.ATTACK_SPEED.id]: 0.5,
-                [STATS.RANGE.id]: 10,
-                [STATS.SPEED.id]: 1,
-                [STATS.ARMOUR.id]: 0,
+                [STATS.HEALTH.id]: 10,
+                [STATS.DAMAGE.id]: 5,
+                [STATS.ATTACK_SPEED.id]: 1.8,
+                [STATS.RANGE.id]: 20,
+                [STATS.SPEED.id]: 30.0,
+                [STATS.ARMOUR.id]: 1,
+                [STATS.MAGIC_RESIST.id]: 2,
+                [STATS.CRIT_CHANCE.id]: 0.1,
+            },
+            AI: {
+                discipline: 100,
+                friction: 1,
+                perception: 50,
+                projectileSpeed: 42,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        CYCLOPS: {
+            id: "unit-cyclops",
+            name_i18n: "unit-cyclops",
+            description_i18n: "unit-cyclops-description",
+            radius: 4,
+            portrait: "cyclops",
+            image: "cyclops",
+            projectileArt: 'projectile-sphere',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 20,
+                [STATS.DAMAGE.id]: 15,
+                [STATS.ATTACK_SPEED.id]: 0.9,
+                [STATS.RANGE.id]: 40,
+                [STATS.SPEED.id]: 16,
+                [STATS.ARMOUR.id]: 5,
+                [STATS.MAGIC_RESIST.id]: 0,
+                [STATS.CRIT_CHANCE.id]: 0.1,
+            },
+            AI: {
+                discipline: 100,
+                friction: 3,
+                perception: 50,
+                projectileSpeed: 21,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        HORSE: {
+            id: "unit-horse",
+            name_i18n: "unit-horse",
+            description_i18n: "unit-horse-description",
+            radius: 4,
+            portrait: "horse",
+            image: "horse",
+            projectileArt: 'projectile-sphere',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 22,
+                [STATS.DAMAGE.id]: 14,
+                [STATS.ATTACK_SPEED.id]: 1.0,
+                [STATS.RANGE.id]: 12,
+                [STATS.SPEED.id]: 38,
+                [STATS.ARMOUR.id]: 1,
+                [STATS.MAGIC_RESIST.id]: 0,
+                [STATS.CRIT_CHANCE.id]: 0.1,
+            },
+            AI: {
+                discipline: 100,
+                friction: 3,
+                perception: 50,
+                projectileSpeed: 30,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        APE: {
+            id: "unit-ape",
+            name_i18n: "unit-ape",
+            description_i18n: "unit-ape-description",
+            radius: 4,
+            portrait: "ape",
+            image: "ape",
+            projectileArt: 'projectile-sphere',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 26,
+                [STATS.DAMAGE.id]: 8,
+                [STATS.ATTACK_SPEED.id]: 2.0,
+                [STATS.RANGE.id]: 20,
+                [STATS.SPEED.id]: 20,
+                [STATS.ARMOUR.id]: 1,
+                [STATS.MAGIC_RESIST.id]: 0,
+                [STATS.CRIT_CHANCE.id]: 0.1,
+            },
+            AI: {
+                discipline: 100,
+                friction: 1,
+                perception: 50,
+                projectileSpeed: 33,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        OCTOPUS: {
+            id: "unit-octopus",
+            name_i18n: "unit-octopus",
+            description_i18n: "unit-octopus-description",
+            radius: 4,
+            portrait: "octopus",
+            image: "octopus",
+            projectileArt: 'projectile-sphere',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 24,
+                [STATS.DAMAGE.id]: 7,
+                [STATS.ATTACK_SPEED.id]: 2.5,
+                [STATS.RANGE.id]: 30,
+                [STATS.SPEED.id]: 18,
+                [STATS.ARMOUR.id]: 1,
+                [STATS.MAGIC_RESIST.id]: 0,
+                [STATS.CRIT_CHANCE.id]: 0.1,
+            },
+            AI: {
+                discipline: 100,
+                friction: 3,
+                perception: 50,
+                projectileSpeed: 39,
+                magnetDistance: 20,
+                magnetForce: 300,
+            },
+        },
+        ELK: {
+            id: "unit-elk",
+            name_i18n: "unit-elk",
+            description_i18n: "unit-elk-description",
+            radius: 4,
+            portrait: "elk",
+            image: "elk",
+            projectileArt: 'projectile-sphere',
+            projectileRadius: 2,
+            gold: DROP.GOLD_1,
+            experience: DROP.EXPERIENCE_1,
+            stats: {
+                [STATS.HEALTH.id]: 28,
+                [STATS.DAMAGE.id]: 14,
+                [STATS.ATTACK_SPEED.id]: 0.8,
+                [STATS.RANGE.id]: 16,
+                [STATS.SPEED.id]: 40,
+                [STATS.ARMOUR.id]: 6,
                 [STATS.MAGIC_RESIST.id]: 3,
-                [STATS.CRIT_CHANCE.id]: 0.0,
+                [STATS.CRIT_CHANCE.id]: 0.1,
             },
             AI: {
                 discipline: 100,
                 friction: 2,
                 perception: 50,
-                projectileSpeed: 100,
+                projectileSpeed: 50,
                 magnetDistance: 20,
                 magnetForce: 300,
             },
         },
-        FIREMAN: {
-            id: "unit-fireman",
-            name_i18n: "unit-fireman",
-            description_i18n: "unit-fireman-description",
+        MARRAN: {
+            id: "unit-marran",
+            name_i18n: "unit-marran",
+            description_i18n: "unit-marran-description",
             radius: 4,
-            portrait: "🧑‍🚒",
-            image: "🧑‍🚒",
-            projectileArt: '🔥',
-            projectileRadius: 2,
-            gold: DROP.GOLD_1,
-            experience: DROP.EXPERIENCE_1,
+            portrait: "marran",
+            image: "marran",
+            projectileArt: 'projectile-fire',
+            projectileRadius: 4,
+            gold: DROP.GOLD_5,
+            experience: DROP.EXPERIENCE_5,
             stats: {
-                [STATS.HEALTH.id]: 12,
-                [STATS.DAMAGE.id]: 4,
-                [STATS.ATTACK_SPEED.id]: 0.5,
-                [STATS.RANGE.id]: 30,
-                [STATS.SPEED.id]: 5,
-                [STATS.ARMOUR.id]: 2,
+                [STATS.HEALTH.id]: 30,
+                [STATS.DAMAGE.id]: 16,
+                [STATS.ATTACK_SPEED.id]: 1.0,
+                [STATS.RANGE.id]: 45,
+                [STATS.SPEED.id]: 16.0,
+                [STATS.ARMOUR.id]: 4,
                 [STATS.MAGIC_RESIST.id]: 1,
-                [STATS.CRIT_CHANCE.id]: 0.05,
+                [STATS.CRIT_CHANCE.id]: 0.2,
             },
             AI: {
                 discipline: 100,
-                friction: 4,
+                friction: 3,
                 perception: 50,
-                projectileSpeed: 100,
+                projectileSpeed: 30,
                 magnetDistance: 20,
                 magnetForce: 300,
             },
-        },
+        }
     }
 
     const SCENARIOS = [
@@ -1304,8 +1448,15 @@
                     units: [
                         { unit: UNITS.CHICKEN, level: 1, count: 1, },
                     ],
-                    frequency: 2.5,
+                    frequency: 1,
                     time: { start: 0, end: null, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.CHICKEN, level: 1, count: 1, },
+                    ],
+                    frequency: 2,
+                    time: { start: 30, end: null, }
                 },
             ],
             boss: {
@@ -1313,7 +1464,7 @@
                 level: 5,
                 sizeModifier: 2,
                 healthModifier: 10,
-                time: 0,
+                time: 15,
             },
         },
         {
@@ -1331,15 +1482,15 @@
                 {
                     units: [
                         { unit: UNITS.CHICKEN, level: 1, count: 2, },
-                        { unit: UNITS.FIREMAN, level: 1, count: 1, },
+                        { unit: UNITS.HARE, level: 1, count: 1, },
                     ],
                     frequency: 0.75,
                     time: { start: 20, end: 40, }
                 },
                 {
                     units: [
-                        { unit: UNITS.COOK, level: 1, count: 2, },
-                        { unit: UNITS.TEACHER, level: 1, count: 2, },
+                        { unit: UNITS.SNAKE, level: 1, count: 2, },
+                        { unit: UNITS.WOLF, level: 1, count: 2, },
                     ],
                     frequency: 0.75,
                     time: { start: 30, end: null, }
@@ -1357,10 +1508,10 @@
 
     const INITIAL = {
         startingUnit: {
-            unit: UNITS.WOLF,
+            unit: UNITS.HARE,
             level: 1,
         },
-        gold: 0,
+        gold: 1000,
     }
 
     const ACCOUNT = {
@@ -1387,19 +1538,27 @@
             "scenario-tutorial": "Tutorial",
             "scenario-training-grounds": "Training Grounds",
             "unit-chicken": "Chicken",
-            "unit-chicken-description": "Plants potatoes, then throws them at enemies. Homegrown hostility.",
-            "unit-student": "Student",
-            "unit-student-description": "Armed with knowledge and a dangerously sharp pencil. Don’t interrupt study time.",
-            "unit-artist": "Artist",
-            "unit-artist-description": "Sketches beauty, splashes chaos. Paints you into a corner — literally.",
-            "unit-cook": "Cook",
-            "unit-cook-description": "Cooks fast, hits harder. May serve justice with a side of soup.",
+            "unit-chicken-description": "Runs around in panic, but pecks like a champ. Feathered fury!",
+            "unit-hare": "Hare",
+            "unit-hare-description": "Quick on its feet, quicker to regret challenging a wolf.",
+            "unit-snake": "Snake",
+            "unit-snake-description": "Slithers in silence, strikes without warning. Probably planning world domination.",
             "unit-wolf": "Wolf",
-            "unit-wolf-description": "Keeps the peace — by excessive use of force and donuts.",
-            "unit-teacher": "Teacher",
-            "unit-teacher-description": "Corrects grammar and combat posture. Gives pop quizzes... with explosions.",
-            "unit-fireman": "Fireman",
-            "unit-fireman-description": "Puts out fires. Starts them too, if he's feeling spicy.",            "level-up": "Level Up",
+            "unit-wolf-description": "Howls at the moon and your defeat. A bite worse than its bark.",
+            "unit-owl": "Owl",
+            "unit-owl-description": "Knows too much and judges even more. Hoots of disapproval included.",
+            "unit-cyclops": "Cyclops",
+            "unit-cyclops-description": "Sees all (with one eye), smashes all (with one fist).",
+            "unit-horse": "Horse",
+            "unit-horse-description": "Gallops through enemies like they're just more hay to trample.",
+            "unit-ape": "Ape",
+            "unit-ape-description": "Throws hands and bananas. Both hit equally hard.",
+            "unit-octopus": "Octopus",
+            "unit-octopus-description": "Eight arms, zero patience. Smacks foes while multitasking.",
+            "unit-elk": "Elk",
+            "unit-elk-description": "Majestic and mildly annoyed. Charges like a runaway tree.",
+            "unit-marran": "Marran",
+            "unit-marran-description": "Mysterious and grumpy. Best approached with snacks or not at all.",
             "choose-a-unit-to-join-your-team": "choose a unit to join your team",
             "defeat": "Defeat",
             "score": "score",
@@ -1719,7 +1878,7 @@
             this.lastAnimationTime_ms = null;
 
             this.playerPack = new Pack();
-            new Unit(ACCOUNT.startingUnit, 0, 0, this.playerPack, true);
+            new Unit(ACCOUNT.startingUnit, 0, 0, ACCOUNT.deck[ACCOUNT.startingUnit.id].level, this.playerPack, true);
 /*
             new Unit(UNITS.FIREMAN, 0, 0, this.playerPack);
             new Unit(UNITS.CHICKEN, 0, 0, this.playerPack);
@@ -1836,7 +1995,8 @@
                 y: SPAWN_DISTANCE * Math.sin(direction),
             }
             const newPack = new Pack();
-            this.boss = new Unit(this.scenario.boss.baseUnit, spawnPoint.x, spawnPoint.y, newPack, false
+            this.boss = new Unit(this.scenario.boss.baseUnit, spawnPoint.x, spawnPoint.y
+                , this.scenario.boss.level, newPack, false
                 , this.scenario.boss.sizeModifier, this.scenario.boss.healthModifier);
             this.packs.push(newPack);
         }
@@ -1887,6 +2047,7 @@
                     new Unit(unitInfo.unit
                         , spawnPoint.x + this.camera.x
                         , spawnPoint.y + this.camera.y
+                        , unitInfo.level
                         , newPack, false);
                 }
             });
@@ -1895,11 +2056,12 @@
     }
 
     class Unit {
-        constructor(unit, x, y, pack, isAlly, sizeModifier = 1, healthModifier = 1) {
+        constructor(unit, x, y, level, pack, isAlly, sizeModifier = 1, healthModifier = 1) {
 
             this.unit = unit;
             this.attackTimer = 0;
-            this.health = this.unit.stats[STATS.HEALTH.id] * healthModifier;
+            this.level = level;
+            this.health = this.currentStatValue(STATS.HEALTH) * healthModifier;
             this.sizeModifier = sizeModifier;
 
             this.x = x;
@@ -1917,6 +2079,11 @@
 
             pack.addUnit(this);
             this.pack = pack;
+        }
+
+        currentStatValue(stat) {
+            const startValue = this.unit.stats[stat.id];
+            return stat.valueAtLevel(startValue, this.level);
         }
 
         updateElPosition() {
@@ -2009,7 +2176,7 @@
                 packCentre.y,
             );
 
-            const ATTACK_ATTRACTION = 0.1;
+            const ATTACK_ATTRACTION = this === COMBAT.boss ? 1.0 : 0.1;
             const fx = fx_pack * ATTACK_ATTRACTION;
             const fy = fy_pack * ATTACK_ATTRACTION;
 
@@ -2041,8 +2208,8 @@
             const d2 = dx * dx + dy * dy;
             const d = Math.sqrt(d2);
 
-            const myRange = this.unit.stats[STATS.RANGE.id];
-            const enemyRange = closestEnemy.unit.stats[STATS.RANGE.id];
+            const myRange = this.currentStatValue(STATS.RANGE);
+            const enemyRange = closestEnemy.currentStatValue(STATS.RANGE);
 
             let targetDistance;
             if (enemyRange >= myRange) {
@@ -2080,7 +2247,7 @@
             const dy = closestEnemy.y - this.y;
             const d2 = dx * dx + dy * dy;
             const d = Math.sqrt(d2);
-            let rangePlusRadius = this.unit.stats[STATS.RANGE.id] + this.unit.radius;
+            let rangePlusRadius = this.currentStatValue(STATS.RANGE) + this.unit.radius;
             if (d > rangePlusRadius) return;
             if (d === 0) return;
 
@@ -2091,10 +2258,10 @@
             const yOrigin = this.y + this.unit.radius * dy / d;
             const projectile = new Projectile(xOrigin, yOrigin, speedX, speedY, lifeTime
                 , this.pack === COMBAT.playerPack, this.unit.projectileArt
-                , this.unit.stats[STATS.DAMAGE.id], this.unit.projectileRadius);
+                , this.currentStatValue(STATS.DAMAGE), this.unit.projectileRadius);
             // TODO When shooting, add "recoil": accelerate the unit back; when melee, add leap forward.
             COMBAT.projectiles.push(projectile);
-            this.attackTimer += 1 / this.unit.stats[STATS.ATTACK_SPEED.id];
+            this.attackTimer += 1 / this.currentStatValue(STATS.ATTACK_SPEED);
         }
 
         act(dt) {
@@ -2150,10 +2317,17 @@
             ax += fx_friction;
             ay += fy_friction;
 
-            // TODO Make sure the speed is limited by, and reaches at all, the speed parameter.
-
             this.vx += dt * ax;
             this.vy += dt * ay;
+            const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+            if (speed >= this.currentStatValue(STATS.SPEED)) {
+                const speedReduction = this.currentStatValue(STATS.SPEED) / speed;
+                this.vx *= speedReduction;
+                this.vy *= speedReduction;
+                if (this.pack === COMBAT.playerPack) {
+                    console.log(`Speed limitation works.`);
+                }
+            }
             this.x += dt * this.vx;
             this.y += dt * this.vy;
 
@@ -2599,7 +2773,8 @@
                     const maxLevel = level > UPGRADES.length;
                     const setValue = (stat, level) => {
                         let currentValue = stat.valueAtLevel(UI.selectedUnit.stats[stat.id], level);
-                        document.getElementById("stat-" + stat.id + "-value").innerHTML = currentValue;
+                        let currentValueStr = stat.valueAtLeveString(UI.selectedUnit.stats[stat.id], level);
+                        document.getElementById("stat-" + stat.id + "-value").innerHTML = currentValueStr;
                         const nextLevelValue = stat.valueAtLevel(UI.selectedUnit.stats[stat.id], level + 1);
 
                         if (maxLevel) {
@@ -2661,7 +2836,9 @@
 
         static chooseLevelUpBonus(id) {
             let centre = COMBAT.playerPack.centre();
-            new Unit(UI.levelUpBonuses[id], centre.x, centre.y, COMBAT.playerPack, true);
+            new Unit(UI.levelUpBonuses[id], centre.x, centre.y
+                , ACCOUNT.deck[UI.levelUpBonuses[id].id].level
+                , COMBAT.playerPack, true);
             UI.hidePopups();
             COMBAT.resume();
         }
@@ -2782,7 +2959,8 @@
             if (COMBAT.boss === null) return;
             let progressBar = document.getElementById("boss-hp-progress-bar");
             progressBar.classList.toggle("hidden", COMBAT.boss.health <= 0);
-            const maxHealth = COMBAT.scenario.boss.healthModifier * COMBAT.scenario.boss.baseUnit.stats[STATS.HEALTH.id];
+            const maxHealth = COMBAT.scenario.boss.healthModifier
+                * COMBAT.boss.currentStatValue(STATS.HEALTH);
             const healthPercentage = Math.max(100.0 * COMBAT.boss.health / maxHealth, 0).toFixed(1);
             progressBar.style.background = `linear-gradient(to right, #870019 ${healthPercentage}%, #223b5a ${healthPercentage}%)`;
         }
