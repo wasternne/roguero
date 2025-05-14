@@ -1096,12 +1096,22 @@
     const COMBAT_LEVELS = [
         3,
         5,
+        7,
         10,
+        15,
         20,
+        25,
+        30,
+        35,
+        40,
+        45,
         50,
-        100,
-        200,
-        500
+        55,
+        60,
+        65,
+        70,
+        75,
+        80,
     ]
 
     const UNITS = {
@@ -1484,77 +1494,77 @@
                     units: [
                         { unit: UNITS.CHICKEN, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 0, end: 20, }
                 },
                 {
                     units: [
                         { unit: UNITS.HARE, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 20, end: 40, }
                 },
                 {
                     units: [
                         { unit: UNITS.SNAKE, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 40, end: 60, }
                 },
                 {
                     units: [
                         { unit: UNITS.WOLF, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 60, end: 80, }
                 },
                 {
                     units: [
                         { unit: UNITS.OWL, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 80, end: 100, }
                 },
                 {
                     units: [
                         { unit: UNITS.CYCLOPS, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 120, end: 140, }
                 },
                 {
                     units: [
                         { unit: UNITS.HORSE, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 140, end: 160, }
                 },
                 {
                     units: [
                         { unit: UNITS.APE, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 160, end: 180, }
                 },
                 {
                     units: [
                         { unit: UNITS.OCTOPUS, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 180, end: 200, }
                 },
                 {
                     units: [
                         { unit: UNITS.ELK, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 200, end: 220, }
                 },
                 {
                     units: [
                         { unit: UNITS.MARRAN, level: 1, count: 2, },
                     ],
-                    frequency: 0.3,
+                    frequency: 0.9,
                     time: { start: 240, end: null, }
                 },
             ],
@@ -2133,6 +2143,8 @@
 
     class Unit {
         constructor(unit, x, y, level, pack, isAlly, sizeModifier = 1, healthModifier = 1) {
+
+            console.log(`Spawn ${Localisation.CURRENT_LANGUAGE[unit.id]}: (${x.toFixed(1)}, ${y.toFixed(1)})`);
 
             this.unit = unit;
             this.attackTimer = 0;
