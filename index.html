@@ -1438,7 +1438,7 @@
     }
 
     const SCENARIOS = [
-        {
+/*        {
             id: "scenario-tutorial",
             name_i18n: "scenario-tutorial",
             image: "☀<br/>🧑‍🌾🌳",
@@ -1458,6 +1458,13 @@
                     frequency: 2,
                     time: { start: 30, end: null, }
                 },
+                {
+                    units: [
+                        { unit: UNITS.CHICKEN, level: 1, count: 1, },
+                    ],
+                    frequency: 3,
+                    time: { start: 60, end: null, }
+                },
             ],
             boss: {
                 baseUnit: UNITS.CHICKEN,
@@ -1466,11 +1473,12 @@
                 healthModifier: 10,
                 time: 15,
             },
-        },
+        },*/
         {
             id: "scenario-training-grounds",
             name_i18n: "scenario-training-grounds",
             image: "🌙<br/>🚴🏔",
+            background: "background-1",
             packs: [
                 {
                     units: [
@@ -1481,27 +1489,81 @@
                 },
                 {
                     units: [
-                        { unit: UNITS.CHICKEN, level: 1, count: 2, },
-                        { unit: UNITS.HARE, level: 1, count: 1, },
+                        { unit: UNITS.HARE, level: 1, count: 2, },
                     ],
-                    frequency: 0.75,
+                    frequency: 0.3,
                     time: { start: 20, end: 40, }
                 },
                 {
                     units: [
                         { unit: UNITS.SNAKE, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 40, end: 60, }
+                },
+                {
+                    units: [
                         { unit: UNITS.WOLF, level: 1, count: 2, },
                     ],
-                    frequency: 0.75,
-                    time: { start: 30, end: null, }
+                    frequency: 0.3,
+                    time: { start: 60, end: 80, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.OWL, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 80, end: 100, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.CYCLOPS, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 120, end: 140, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.HORSE, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 140, end: 160, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.APE, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 160, end: 180, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.OCTOPUS, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 180, end: 200, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.ELK, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 200, end: 220, }
+                },
+                {
+                    units: [
+                        { unit: UNITS.MARRAN, level: 1, count: 2, },
+                    ],
+                    frequency: 0.3,
+                    time: { start: 240, end: null, }
                 },
             ],
             boss: {
-                baseUnit: UNITS.CHICKEN,
+                baseUnit: UNITS.MARRAN,
                 level: 5,
                 sizeModifier: 2,
                 healthModifier: 10,
-                time: 5,
+                time: 220,
             },
         }
     ]
@@ -1511,14 +1573,25 @@
             unit: UNITS.HARE,
             level: 1,
         },
-        gold: 1000,
+        gold: 0,
     }
 
     const ACCOUNT = {
         deck: {
-            [INITIAL.startingUnit.unit.id]: {
-                level: INITIAL.startingUnit.level,
-            },
+            // [INITIAL.startingUnit.unit.id]: {
+            //     level: INITIAL.startingUnit.level,
+            // },
+            // [UNITS.CHICKEN.id]: { level: 1, },
+            [UNITS.HARE.id]: { level: 1, },
+            [UNITS.SNAKE.id]: { level: 1, },
+            [UNITS.WOLF.id]: { level: 1, },
+            [UNITS.OWL.id]: { level: 1, },
+            [UNITS.CYCLOPS.id]: { level: 1, },
+            [UNITS.HORSE.id]: { level: 1, },
+            [UNITS.APE.id]: { level: 1, },
+            [UNITS.OCTOPUS.id]: { level: 1, },
+            [UNITS.ELK.id]: { level: 1, },
+            [UNITS.MARRAN.id]: { level: 1, },
         },
         gold: INITIAL.gold,
         startingUnit: INITIAL.startingUnit.unit,
@@ -1526,7 +1599,7 @@
             [SCENARIOS[0].id]: {
                 time: null,
                 bossKilled: false,
-            }
+            },
         },
         selectedScenario: SCENARIOS[0],
     }
@@ -1879,15 +1952,18 @@
 
             this.playerPack = new Pack();
             new Unit(ACCOUNT.startingUnit, 0, 0, ACCOUNT.deck[ACCOUNT.startingUnit.id].level, this.playerPack, true);
-/*
-            new Unit(UNITS.FIREMAN, 0, 0, this.playerPack);
-            new Unit(UNITS.CHICKEN, 0, 0, this.playerPack);
-            new Unit(UNITS.WOLF, 0, 0, this.playerPack);
-            new Unit(UNITS.COOK, 0, 0, this.playerPack);
-            new Unit(UNITS.STUDENT, 0, 0, this.playerPack);
-            new Unit(UNITS.ARTIST, 0, 0, this.playerPack);
-            new Unit(UNITS.TEACHER, 0, 0, this.playerPack);
-*/
+
+            new Unit(UNITS.CHICKEN, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.HARE, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.SNAKE, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.WOLF, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.OWL, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.CYCLOPS, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.HORSE, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.APE, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.OCTOPUS, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.ELK, 0, 0, 1, this.playerPack, true);
+            new Unit(UNITS.MARRAN, 0, 0, 1, this.playerPack, true);
 
             this.packs = [ this.playerPack ];
             this.projectiles = [];
@@ -2324,9 +2400,6 @@
                 const speedReduction = this.currentStatValue(STATS.SPEED) / speed;
                 this.vx *= speedReduction;
                 this.vy *= speedReduction;
-                if (this.pack === COMBAT.playerPack) {
-                    console.log(`Speed limitation works.`);
-                }
             }
             this.x += dt * this.vx;
             this.y += dt * this.vy;
